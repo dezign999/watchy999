@@ -76,7 +76,7 @@ void Watchy999::drawCeWatchFace() {
   display.print(latestTime.dateStr);
 
   //Temperature
-  drawWeather();
+//  drawWeather();
   display.setCursor(145, 191);
   display.println(String(temperature));
   display.drawBitmap((String(temperature).length() > 2) ? 176 : 167, 182, degree, 2, 2, GxEPD_WHITE); //Degree dot

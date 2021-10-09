@@ -1176,8 +1176,10 @@ void WatchyBase::disableWiFi() {
   WiFi.mode(WIFI_OFF);
   WIFI_CONFIGURED = false;
   btStop();
-  if (debugger)
-    Serial.println("WiFi Turned Off. IP Check: " + WiFi.localIP());
+  if (debugger) {
+    Serial.print("WiFi Turned Off. IP Check: ");
+    Serial.println(WiFi.localIP());
+  }
 }
 
 bool WatchyBase::wifi999() {
@@ -1204,7 +1206,7 @@ bool WatchyBase::wifi999() {
 
   if (WiFi.status() == WL_CONNECTED) {
     if (debugger) {
-      Serial.println(F("\nWiFi connected, your IP address is "));
+      Serial.print(F("\nWiFi connected, your IP address is "));
       Serial.println(WiFi.localIP());
       Serial.print("City Name: ");
       Serial.println(cityNames[n]);
@@ -1322,8 +1324,10 @@ weatherData WatchyBase::weather999() {
     latestWeather.weatherConditionCode = weatherConditionCode;
   }
 
-  if(!runOnce)
+  if(!runOnce) {
     disableWiFi();
+    Serial.println("disabling weather wifi");
+  }
   return latestWeather;
   manualSync = false;
   display.display(true);

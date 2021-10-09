@@ -136,6 +136,11 @@ void Watchy999::drawWeather() {
   } else if (weatherConditionCode >= 200) { //Thunderstorm
     tempCondition = "THUNDER";
   }
+
+  if (debugger) {
+    Serial.println("weatherConditionCode: " + String(weatherConditionCode));
+    Serial.println("tempCondition: " + tempCondition);
+  }
 }
 
 void Watchy999::checkBattery() {
@@ -203,7 +208,7 @@ void Watchy999::drawWatchFace() {
 
   if (showWeather && !lowBattFace) {
 
-    if (weatherMode == 0 && currentTime.Minute % 30 == 0 && weatherMode != 2 || weatherMode == 1 && currentTime.Minute == 0 && weatherMode != 2 || runOnce || switchFace && updateHour != currentTime.Hour) {
+    if (weatherMode == 0 && currentTime.Minute % 2 == 0 && weatherMode != 2 || weatherMode == 1 && currentTime.Minute == 0 && weatherMode != 2 || runOnce || switchFace && updateHour != currentTime.Hour) {
       showCached = false;
     } else {
       showCached = true;
@@ -234,8 +239,12 @@ void Watchy999::drawWatchFace() {
     drawTetrisWatchFace();
   }
 
-  runOnce = false;
+  if(debugger)
+    Serial.println("runOnce: " + String(runOnce));
+  if(runOnce)
+    runOnce = false;
 
-  switchFace = false;
+  if(switchFace)
+    switchFace = false;
 
 }
