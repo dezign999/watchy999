@@ -208,7 +208,7 @@ void Watchy999::drawWatchFace() {
 
   if (showWeather && !lowBattFace) {
 
-    if (weatherMode == 0 && currentTime.Minute % 2 == 0 && weatherMode != 2 || weatherMode == 1 && currentTime.Minute == 0 && weatherMode != 2 || runOnce || switchFace && updateHour != currentTime.Hour) {
+    if (weatherMode == 0 && currentTime.Minute % 30 == 0 && weatherMode != 2 || weatherMode == 1 && currentTime.Minute == 0 && weatherMode != 2 || runOnce || switchFace && updateHour != currentTime.Hour) {
       showCached = false;
     } else {
       showCached = true;
