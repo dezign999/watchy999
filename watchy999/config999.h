@@ -18,7 +18,7 @@ const int accessPointCount = sizeof(accessPoints) / sizeof(accessPoints[0]); // 
 //weather api - Update these to match your city/country/api key
 //get your free api key from: https://openweathermap.org/appid
 
-"f058fe1cad2afe8e2ddc5d063a64cecb" //use your own API key (this is SQFMI'S) 🙂 
+//"f058fe1cad2afe8e2ddc5d063a64cecb" //use your own API key (this is SQFMI'S) 🙂 
 #define APIKEY "f058fe1cad2afe8e2ddc5d063a64cecb" //use your own API key (this is SQFMI'S) :)
 #define URL "http://api.openweathermap.org/data/2.5/weather"
 
