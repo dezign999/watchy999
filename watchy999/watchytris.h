@@ -88,20 +88,17 @@ void Watchy999::drawWatchytrisWatchFace() {
     weatherIcon = (isNight) ? tfewcloudsnight : tfewclouds;
   } else if (weatherConditionCode == 800) { //Clear
     weatherIcon = (isNight) ? tclearskynight : tclearsky;
-  } 
-//  else if (weatherConditionCode >= 700) { //Atmosphere
-//    weatherIcon = mist;
-//  } else if (weatherConditionCode >= 600) { //Snow
-//    weatherIcon = snow;
-//  } 
-  else if (weatherConditionCode >= 500) { //Rain
+  } else if (weatherConditionCode >= 700) { //Atmosphere
+    weatherIcon = tmist;
+  } else if (weatherConditionCode >= 600) { //Snow
+    weatherIcon = tsnow;
+  } else if (weatherConditionCode >= 500) { //Rain
     weatherIcon = train;
   } else if (weatherConditionCode >= 300) { //Drizzle
     weatherIcon = tdrizzle;
-  } 
-//  else if (weatherConditionCode >= 200) { //Thunderstorm
-//    weatherIcon = thunderstorm;
-//  }
+  } else if (weatherConditionCode >= 200) { //Thunderstorm
+    weatherIcon = tthunderstorm;
+  }
 
   display.drawBitmap(149, 153, weatherIcon, 40, 33, GxEPD_BLACK);
    

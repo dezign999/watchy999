@@ -185,7 +185,7 @@ void Watchy999::checkSteps() {
   }
   int stepNumber = sensor.getCounter();
   if (oldSteps < stepNumber) {
-    if (animMode == 3 && watchFace != 3) {
+    if (animMode == 3 && watchFace != 3 && watchFace != 7) { //check for watch faces that use watchAction to toggle design changes
       watchAction = true;
     }
     oldSteps = stepNumber;
