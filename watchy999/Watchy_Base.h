@@ -27,6 +27,7 @@ extern RTC_DATA_ATTR int16_t weatherConditionCode;
 extern RTC_DATA_ATTR bool weatherFormat;
 extern RTC_DATA_ATTR bool watchAction;
 extern RTC_DATA_ATTR bool showWeather;
+extern RTC_DATA_ATTR bool isNight;
 extern uint16_t ambientOffset;
 extern RTC_DATA_ATTR String dezign;
 extern int ntpSyncHour;

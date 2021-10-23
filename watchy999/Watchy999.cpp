@@ -1,12 +1,12 @@
 #include "Watchy999.h"
 #include "slides999.h"
 #include "dktime999.h"
-#include "tetris.h"
+#include "watchytris.h"
 #include "synth999.h"
 #include "pxl999.h"
 #include "crushem999.h"
 #include "lowBatt999.h"
-
+#include "G5600.h"
 
 RTC_DATA_ATTR bool charging = false;
 RTC_DATA_ATTR bool chargeSync = false;
@@ -79,6 +79,12 @@ timeData Watchy999::getTimeDate() {
 
   char *dayAbbrev = dayNames[currentTime.Wday - 1];
   char *monthAbbrev = monthNames[currentTime.Month - 1];
+
+  isNight = (currentTime.Hour >= 18 || currentTime.Hour <= 5) ? true : false;
+  if (debugger) {
+    Serial.print("isNight: ");
+    Serial.println((isNight) ? "True" : "False");
+  }
 
   latestTime.hour1 = hour1;
   latestTime.hour2 = hour2;
@@ -179,7 +185,7 @@ void Watchy999::checkSteps() {
   }
   int stepNumber = sensor.getCounter();
   if (oldSteps < stepNumber) {
-    if (animMode == 3) {
+    if (animMode == 3 && watchFace != 3) {
       watchAction = true;
     }
     oldSteps = stepNumber;
@@ -195,7 +201,7 @@ void Watchy999::drawWatchFace() {
   if (watchFace != 5 && !lowBattFace)
     checkSteps();
 
-  if (watchFace == 1 || watchFace == 3 || watchFace == 4) {
+  if (watchFace == 1 || watchFace == 3 || watchFace == 4 || watchFace == 6) {
     showWeather = true;
   } else {
     showWeather = false;
@@ -236,15 +242,20 @@ void Watchy999::drawWatchFace() {
   } else if (watchFace == 5) { //lowBatt
     drawLowBattWatchFace();
   } else if (watchFace == 6) { //Tetris
-    drawTetrisWatchFace();
+    drawWatchytrisWatchFace();
+  } else if (watchFace == 7) { //G5600 by NiVZ
+    drawG5600WatchFace();
   }
 
   if(debugger)
     Serial.println("runOnce: " + String(runOnce));
+    
   if(runOnce)
     runOnce = false;
 
   if(switchFace)
     switchFace = false;
+
+  display.display(true);
 
 }

@@ -111,5 +111,5 @@ void Watchy999::drawCeAnim() {
 
   //Hide Ghosting
   display.drawBitmap(0, 0, ce_anim[0], 200, 140, GxEPD_WHITE);
-  display.display(true);
+
 }

@@ -60,5 +60,5 @@ void Watchy999::drawDkAnim() {
   //Hide Ghosting
   display.fillRect(0, 76, 200, 121, GxEPD_BLACK);
   display.drawBitmap(7, 76, dk_anim1[0], 182, 121, GxEPD_WHITE);
-  display.display(true);
+
 }

@@ -13,17 +13,18 @@ RTC_DATA_ATTR int wifiMode = 0;
 RTC_DATA_ATTR int weatherMode = 0;
 RTC_DATA_ATTR int selectedItem;
 RTC_DATA_ATTR int syncIndex = 0;
-RTC_DATA_ATTR int watchFace = 0; //0 = Donkey Kong, 1 = pxl999, 2 = slides999, 3 = synth999, 4 = Crush Em999, 5 = lowBatt999, 5 = Tetris
+RTC_DATA_ATTR int watchFace = 0; //0 = Donkey Kong, 1 = pxl999, 2 = slides999, 3 = synth999, 4 = Crush Em999, 5 = lowBatt999, 5 = Tetris, 6 = G5600
 RTC_DATA_ATTR bool switchFace = true; // Enable redraw when switching faces;
 RTC_DATA_ATTR int cityNameID;
 RTC_DATA_ATTR String cityName;
 RTC_DATA_ATTR String dezign;
 RTC_DATA_ATTR int8_t temperature;
-RTC_DATA_ATTR int16_t weatherConditionCode = 0;
+RTC_DATA_ATTR int16_t weatherConditionCode = 999;
 RTC_DATA_ATTR bool weatherFormat = true;
 RTC_DATA_ATTR bool watchAction = false;
 RTC_DATA_ATTR weatherData latestWeather;
 RTC_DATA_ATTR bool showWeather = false;
+RTC_DATA_ATTR bool isNight = false;
 bool res;
 bool manualSync = false;
 const char *offsetStatus = "success";
@@ -36,7 +37,7 @@ WatchyBase::WatchyBase() {}
 void WatchyBase::init() {
   if (debugger)
     Serial.begin(115200);
-
+  
   NVS.begin();
 
   if (runOnce) {
@@ -546,7 +547,7 @@ void WatchyBase::watchfaceApp() {
   display.setTextColor(GxEPD_WHITE);
   display.fillScreen(GxEPD_BLACK);
 
-  char *listItems[] = {"DKtime", "pxl", "slides", "synth", "Crush Em", "lowBatt", "Tetris"};
+  char *listItems[] = {"DKtime", "pxl", "slides", "synth", "Crush Em", "lowBatt", "Watchytris", "G5600 by NiVZ"};
   byte itemCount = sizeof(listItems) / sizeof(listItems[0]);
 
   uint16_t listIndex = watchFace;
@@ -1030,9 +1031,21 @@ void WatchyBase::showList(char *listItems[], byte itemCount, byte listIndex, boo
   int16_t  x1, y1;
   uint16_t w, h;
   int16_t yPos;
+  int16_t startPos = 0;
+//   (menuIndex + MENU_LENGTH > menuOptions)
+  if (listIndex + MENU_LENGTH > itemCount)
+  {            //(menuOptions - 1) - (MENU_LENGTH - 1);
+    startPos = (itemCount - 1) - (MENU_LENGTH - 1);
+  }
+  else
+  {
+    startPos = listIndex;
+  }
 
-  for (int i = 0; i < itemCount; i++) {
-    yPos = 30 + (MENU_HEIGHT * i);
+  for (int i = startPos; i < MENU_LENGTH + startPos; i++) {
+//  for (int i = 0; i < itemCount; i++) {
+//    yPos = 30 + (MENU_HEIGHT * i);
+      yPos = 30 + (MENU_HEIGHT * (i - startPos));
     display.setCursor(20, yPos);
     if (i == listIndex) {
       display.getTextBounds(listItems[i], 0, yPos, &x1, &y1, &w, &h);
@@ -1187,13 +1200,15 @@ bool WatchyBase::wifi999() {
   int i, n;
 
   for (n = 0; n < accessPointCount; n++) {
-    Serial.println("Trying: " + String(accessPoints[n]));
+    if(debugger)
+      Serial.println("Trying: " + String(accessPoints[n]));
     WiFi.begin(accessPoints[n], apPasswords[n]);
     i = 0;
     while (i < 10 && WiFi.status() != WL_CONNECTED) {
       i++;
       delay(500);
-      Serial.print(".");
+      if(debugger)
+        Serial.print(".");
     }
 
     if (WiFi.status() == WL_CONNECTED)
@@ -1326,9 +1341,15 @@ weatherData WatchyBase::weather999() {
 
   if(!runOnce) {
     disableWiFi();
-    Serial.println("disabling weather wifi");
+    if(debugger)
+      Serial.println("disabling weather wifi");
   }
   return latestWeather;
   manualSync = false;
-  display.display(true);
+
+  if(runOnce) {
+    display.display(false);
+  } else {
+    display.display(true);
+  }
 }

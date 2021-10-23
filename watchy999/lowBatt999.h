@@ -24,6 +24,4 @@ void Watchy999::drawLowBattWatchFace() {
     display.println(String(lowBattHour) + ":" + String(lowBattMin));
   }
 
-  display.display(true);
-
 }

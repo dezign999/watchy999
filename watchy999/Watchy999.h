@@ -43,7 +43,7 @@ class Watchy999 : public WatchyBase{
         void drawDkAnim();
         void drawDkWatchFace();
         //Tetris
-        void drawTetrisWatchFace();
+        void drawWatchytrisWatchFace();
         //Synth999
         void drawSynthWatchFace();
         void drawSynthTime();
@@ -56,6 +56,8 @@ class Watchy999 : public WatchyBase{
         void drawCeWatchFace();
         //lowBatt999
         void drawLowBattWatchFace();
+        //G5600
+        void drawG5600WatchFace();
         //Universal
         timeData getTimeDate();
         void drawWatchFace();

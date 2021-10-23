@@ -2,9 +2,6 @@
 #define DATE_FONT timeLGMono20pt7b
 #define SMALL_TEXT smTextMono8pt7b
 
-//Night weather icons ;)
-RTC_DATA_ATTR bool isNight = false;
-
 void Watchy999::drawPxlWatchFace() {
 
   display.fillScreen(GxEPD_BLACK);
@@ -58,7 +55,6 @@ void Watchy999::drawPxlWatchFace() {
   display.println(cityName);
 
   //Weather Icon
-  isNight = (currentTime.Hour >= 18 || currentTime.Hour <= 5) ? true : false;
   const unsigned char* weatherIcon;
 
   if (weatherMode == 2)
@@ -88,8 +84,5 @@ void Watchy999::drawPxlWatchFace() {
 
   display.fillRect(141, 91, 49, 44, GxEPD_BLACK); //Redraw Helper
   display.drawBitmap(143, 93, weatherIcon, 45, 40, GxEPD_WHITE);
-
-  //another silly work around to help reduce ghosting
-  display.display(true);
 
 }

@@ -115,6 +115,4 @@ void Watchy999::drawSynthWatchFace() {
     display.println(String(temperature) + "' " + tempCondition);
   }
 
-  display.display(true);
-
 }
