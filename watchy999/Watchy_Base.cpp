@@ -37,7 +37,7 @@ WatchyBase::WatchyBase() {}
 void WatchyBase::init() {
   if (debugger)
     Serial.begin(115200);
-  
+
   NVS.begin();
 
   if (runOnce) {
@@ -733,6 +733,8 @@ void WatchyBase::weatherApp() {
 
 void WatchyBase::weatherFormatApp() {
 
+
+
   char *listItems[] = {"Celcius", "Farenheit"};
   byte itemCount = sizeof(listItems) / sizeof(listItems[0]);
 
@@ -1032,20 +1034,18 @@ void WatchyBase::showList(char *listItems[], byte itemCount, byte listIndex, boo
   uint16_t w, h;
   int16_t yPos;
   int16_t startPos = 0;
-//   (menuIndex + MENU_LENGTH > menuOptions)
-  if (listIndex + MENU_LENGTH > itemCount)
-  {            //(menuOptions - 1) - (MENU_LENGTH - 1);
-    startPos = (itemCount - 1) - (MENU_LENGTH - 1);
-  }
-  else
-  {
-    startPos = listIndex;
+  bool longList = (itemCount >= 6) ? true : false;
+
+  if (longList) {
+    if (listIndex + MENU_LENGTH > itemCount) {
+      startPos = (itemCount - 1) - (MENU_LENGTH - 1);
+    } else {
+      startPos = listIndex;
+    }
   }
 
-  for (int i = startPos; i < MENU_LENGTH + startPos; i++) {
-//  for (int i = 0; i < itemCount; i++) {
-//    yPos = 30 + (MENU_HEIGHT * i);
-      yPos = 30 + (MENU_HEIGHT * (i - startPos));
+  for (int i = ((longList) ? startPos : 0); i < ((longList) ? (MENU_LENGTH + startPos) : itemCount); i++) {
+    yPos = 30 + (MENU_HEIGHT * ((longList) ? (i - startPos) : i));
     display.setCursor(20, yPos);
     if (i == listIndex) {
       display.getTextBounds(listItems[i], 0, yPos, &x1, &y1, &w, &h);
@@ -1072,10 +1072,10 @@ void WatchyBase::showList(char *listItems[], byte itemCount, byte listIndex, boo
 
 void WatchyBase::syncNtpTime() {
 
-  if(debugger)
+  if (debugger)
     Serial.println("Syncing NTP");
 
-  if(!runOnce) {
+  if (!runOnce) {
     if (wifiMode == 0) {
       if (debugger)
         Serial.println("Trying wifi999");
@@ -1179,10 +1179,10 @@ void WatchyBase::syncNtpTime() {
   }
 
   disableWiFi();
-  if(manualSync)
+  if (manualSync)
     display.display(true);
   manualSync = false;
-  
+
 }
 
 void WatchyBase::disableWiFi() {
@@ -1200,14 +1200,14 @@ bool WatchyBase::wifi999() {
   int i, n;
 
   for (n = 0; n < accessPointCount; n++) {
-    if(debugger)
+    if (debugger)
       Serial.println("Trying: " + String(accessPoints[n]));
     WiFi.begin(accessPoints[n], apPasswords[n]);
     i = 0;
     while (i < 10 && WiFi.status() != WL_CONNECTED) {
       i++;
       delay(500);
-      if(debugger)
+      if (debugger)
         Serial.print(".");
     }
 
@@ -1339,15 +1339,15 @@ weatherData WatchyBase::weather999() {
     latestWeather.weatherConditionCode = weatherConditionCode;
   }
 
-  if(!runOnce) {
+  if (!runOnce) {
     disableWiFi();
-    if(debugger)
+    if (debugger)
       Serial.println("disabling weather wifi");
   }
   return latestWeather;
   manualSync = false;
 
-  if(runOnce) {
+  if (runOnce) {
     display.display(false);
   } else {
     display.display(true);
