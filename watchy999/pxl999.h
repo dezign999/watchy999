@@ -35,10 +35,10 @@ void Watchy999::drawPxlWatchFace() {
 
   display.setFont(&SMALL_TEXT);
   display.setCursor(76, 169);
-  display.print(monthName);
+  display.print((dateMode) ? monthName : dayName);
 
   display.setCursor(76, 184);
-  display.print(dayName);
+  display.print((dateMode) ? dayName : monthName);
 
   display.setFont(&SMALL_TEXT);
   display.fillRect(142, 136, 49, 13, GxEPD_BLACK); //Redraw Helper

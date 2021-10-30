@@ -22,11 +22,11 @@ void Watchy999::drawWatchytrisWatchFace() {
   display.drawBitmap(156, 25, trisDayNames[(currentTime.Wday - 1)], 25, 6, GxEPD_BLACK); //day abbrev name
 
   //Month
-  display.drawBitmap(144, 49, trisMonthNames[(currentTime.Month - 1)], 25, 6, GxEPD_BLACK); //month abbrev name
+  display.drawBitmap((dateMode) ? 167 : 144, 49, trisMonthNames[(currentTime.Month - 1)], 25, 6, GxEPD_BLACK); //month abbrev name
 
   //Date
-  display.drawBitmap(176, 49, trisSmallNums[(latestTime.date1 - '0')], 7, 6, GxEPD_BLACK); //date first digit
-  display.drawBitmap(185, 49, trisSmallNums[(latestTime.date2 - '0')], 7, 6, GxEPD_BLACK); //date second digit
+  display.drawBitmap((dateMode) ? 144 : 176, 49, trisSmallNums[(latestTime.date1 - '0')], 7, 6, GxEPD_BLACK); //date first digit
+  display.drawBitmap((dateMode) ? 153 : 185, 49, trisSmallNums[(latestTime.date2 - '0')], 7, 6, GxEPD_BLACK); //date second digit
 
   //Steps
   int trisSteps = sensor.getCounter();

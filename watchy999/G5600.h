@@ -13,12 +13,12 @@ void Watchy999::drawG5600WatchFace() {
   display.drawBitmap(60, 45, gDateNames[(currentTime.Wday - 1)], 36, 20, (!darkMode) ? GxEPD_BLACK : GxEPD_WHITE); //day abbrev name
 
   //Month
-  display.drawBitmap(114, 45, dateDigit[latestTime.month1 - '0'], 11, 19, (!darkMode) ? GxEPD_BLACK : GxEPD_WHITE); //first digit
-  display.drawBitmap(129, 45, dateDigit[latestTime.month2 - '0'], 11, 19, (!darkMode) ? GxEPD_BLACK : GxEPD_WHITE); //second digit
+  display.drawBitmap((dateMode) ? 151 : 114, 45, dateDigit[latestTime.month1 - '0'], 11, 19, (!darkMode) ? GxEPD_BLACK : GxEPD_WHITE); //first digit
+  display.drawBitmap((dateMode) ? 166 : 129, 45, dateDigit[latestTime.month2 - '0'], 11, 19, (!darkMode) ? GxEPD_BLACK : GxEPD_WHITE); //second digit
 
   //Day
-  display.drawBitmap(151, 45, dateDigit[latestTime.date1 - '0'], 11, 19, (!darkMode) ? GxEPD_BLACK : GxEPD_WHITE); //first digit
-  display.drawBitmap(166, 45, dateDigit[latestTime.date2 - '0'], 11, 19, (!darkMode) ? GxEPD_BLACK : GxEPD_WHITE); //second digit
+  display.drawBitmap((dateMode) ? 114 : 151, 45, dateDigit[latestTime.date1 - '0'], 11, 19, (!darkMode) ? GxEPD_BLACK : GxEPD_WHITE); //first digit
+  display.drawBitmap((dateMode) ? 129 : 166, 45, dateDigit[latestTime.date2 - '0'], 11, 19, (!darkMode) ? GxEPD_BLACK : GxEPD_WHITE); //second digit
 
   if (watchAction) {
     //Hour

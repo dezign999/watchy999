@@ -25,6 +25,10 @@ RTC_DATA_ATTR bool watchAction = false;
 RTC_DATA_ATTR weatherData latestWeather;
 RTC_DATA_ATTR bool showWeather = false;
 RTC_DATA_ATTR bool isNight = false;
+RTC_DATA_ATTR int prefAP = 999;
+RTC_DATA_ATTR int oldPrefAP = 666;
+RTC_DATA_ATTR bool wifiError = false;
+int i, n;
 bool res;
 bool manualSync = false;
 const char *offsetStatus = "success";
@@ -829,7 +833,7 @@ void WatchyBase::twelveModeApp() {
 
 void WatchyBase::dateModeApp() {
 
-  char *listItems[] = {"MM/DD", "DD/HH"};
+  char *listItems[] = {"MM/DD", "DD/MM"};
   byte itemCount = sizeof(listItems) / sizeof(listItems[0]);
 
   uint16_t listIndex = dateMode;
@@ -1195,29 +1199,46 @@ void WatchyBase::disableWiFi() {
   }
 }
 
-bool WatchyBase::wifi999() {
+void WatchyBase::getWifi() {
 
-  int i, n;
+  for (n = (prefAP == oldPrefAP) ? prefAP-- : 0; n < accessPointCount; n++) {
 
-  for (n = 0; n < accessPointCount; n++) {
     if (debugger)
       Serial.println("Trying: " + String(accessPoints[n]));
+      
+    //Sanity Check Wifi Credentials against number of declared Access Points
+    wifiError = (accessPointCount != apPasswordsCount) ? true : (accessPointCount != apTimeoutsCount) ? true : (accessPointCount != cityNamesCount) ? true
+                : (accessPointCount != cityAbbvCount) ? true : false;
+    if (wifiError) {
+      if (debugger)
+        Serial.println("AP Count & Credential Mismatch");
+      break;
+    }
+    
     WiFi.begin(accessPoints[n], apPasswords[n]);
     i = 0;
-    while (i < 10 && WiFi.status() != WL_CONNECTED) {
+    while (i < apTimeouts[n] && WiFi.status() != WL_CONNECTED) {
       i++;
       delay(500);
       if (debugger)
         Serial.print(".");
     }
 
-    if (WiFi.status() == WL_CONNECTED)
+    if (WiFi.status() == WL_CONNECTED) {
+      prefAP = n;
+      oldPrefAP = n;
       break;
+    }
     if (debugger) {
       Serial.print(F("\nConnecting to "));
       Serial.println(accessPoints[n]);
     }
   }
+}
+
+bool WatchyBase::wifi999() {
+
+  getWifi();
 
   if (WiFi.status() == WL_CONNECTED) {
     if (debugger) {
@@ -1228,6 +1249,12 @@ bool WatchyBase::wifi999() {
     }
     cityNameID = n;
     WIFI_CONFIGURED = true;
+  } else if (WiFi.status() != WL_CONNECTED && prefAP != 999 && !wifiError) {
+    prefAP = 999;
+    if (debugger)
+      Serial.println("trying wifi again");
+    //    wifi999();
+    getWifi();
   } else {
     if (debugger)
       Serial.println("No WiFi");
@@ -1243,12 +1270,13 @@ bool WatchyBase::wifi999() {
 }
 
 bool WatchyBase::noAlpha(String str) { //Check if the city name is an ID code or a text name
-  for (int i = 0; i < str.length(); i++)
+  for (int i = 0; i < str.length(); i++) {
     if (str[i] >= '0' && str[i] <= '9') {
       return true;
     } else {
       return false;
     }
+  }
 }
 
 int WatchyBase::rtcTemp() {
@@ -1260,7 +1288,7 @@ int WatchyBase::rtcTemp() {
 
 String WatchyBase::getCityAbbv() {
   String scity;
-  if (cityNameID == 999) {
+  if (cityNameID == 999 || wifiError) {
     scity = "RTC";
   } else {
     scity = cityAbbv[cityNameID];
@@ -1270,7 +1298,7 @@ String WatchyBase::getCityAbbv() {
 
 String WatchyBase::getCityName() {
   String scity;
-  if (cityNameID == 999) {
+  if (cityNameID == 999 || wifiError) {
     scity = "RTC";
   } else {
     scity = cityNames[cityNameID];

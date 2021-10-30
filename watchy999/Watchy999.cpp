@@ -58,21 +58,21 @@ timeData Watchy999::getTimeDate() {
   char date1;
   char date2;
 
-  if (dateMode == 0) {
+//  if (dateMode == 0) {
     monthStr = currentTime.Month < 10 ? "0" + String(currentTime.Month) : String(currentTime.Month);
     dateStr = currentTime.Day < 10 ? "0" + String(currentTime.Day) : String(currentTime.Day);
     month1 = (currentTime.Month / 10 != 0) ? String(currentTime.Month / 10).charAt(0) : '0';
     month2 = String(currentTime.Month % 10).charAt(0);
     date1 = (currentTime.Day / 10 != 0) ? String(currentTime.Day / 10).charAt(0) : '0';
     date2 = String(currentTime.Day % 10).charAt(0);
-  } else {
-    monthStr = currentTime.Day < 10 ? "0" + String(currentTime.Day) : String(currentTime.Day);
-    dateStr = currentTime.Month < 10 ? "0" + String(currentTime.Month) : String(currentTime.Month);
-    date1 = (currentTime.Month / 10 != 0) ? String(currentTime.Month / 10).charAt(0) : '0';
-    date2 = String(currentTime.Month % 10).charAt(0);
-    month1 = (currentTime.Day / 10 != 0) ? String(currentTime.Day / 10).charAt(0) : '0';
-    month2 = String(currentTime.Day % 10).charAt(0);
-  }
+//  } else {
+//    monthStr = currentTime.Day < 10 ? "0" + String(currentTime.Day) : String(currentTime.Day);
+//    dateStr = currentTime.Month < 10 ? "0" + String(currentTime.Month) : String(currentTime.Month);
+//    date1 = (currentTime.Month / 10 != 0) ? String(currentTime.Month / 10).charAt(0) : '0';
+//    date2 = String(currentTime.Month % 10).charAt(0);
+//    month1 = (currentTime.Day / 10 != 0) ? String(currentTime.Day / 10).charAt(0) : '0';
+//    month2 = String(currentTime.Day % 10).charAt(0);
+//  }
 
   char *dayNames[7] = { "SUN" , "MON" , "TUE" , "WED" , "THU" , "FRI" , "SAT" };
   char *monthNames[12] = { "JAN" , "FEB" , "MAR" , "APR" , "MAY" , "JUN" , "JUL" , "AUG" , "SEP" , "OCT" , "NOV" , "DEC" };
@@ -218,6 +218,8 @@ void Watchy999::drawWatchFace() {
       showCached = false;
     } else {
       showCached = true;
+      if(debugger)
+        showCached = false;
     }
 
     drawWeather();
@@ -255,6 +257,9 @@ void Watchy999::drawWatchFace() {
 
   if(switchFace)
     switchFace = false;
+
+  if(WiFi.status() == WL_CONNECTED)
+    disableWiFi();
 
   display.display(true);
 

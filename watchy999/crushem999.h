@@ -69,11 +69,11 @@ void Watchy999::drawCeWatchFace() {
 
   //Month
   display.setCursor(145, 179);
-  display.print(latestTime.monthStr);
+  display.print((dateMode) ? latestTime.dateStr : latestTime.monthStr);
 
   //Date
   display.setCursor(172, 179);
-  display.print(latestTime.dateStr);
+  display.print((dateMode) ? latestTime.monthStr : latestTime.dateStr);
 
   //Temperature
 //  drawWeather();

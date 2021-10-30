@@ -49,6 +49,7 @@ class WatchyBase : public Watchy {
     void saveVars();
     void syncNtpTime();
     bool wifi999();
+    void getWifi();
     void watchfaceApp();
     void disableWiFi();
     void twelveModeApp();
