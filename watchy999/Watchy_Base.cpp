@@ -28,12 +28,17 @@ RTC_DATA_ATTR bool isNight = false;
 RTC_DATA_ATTR int prefAP = 999;
 RTC_DATA_ATTR int oldPrefAP = 666;
 RTC_DATA_ATTR bool wifiError = false;
+RTC_DATA_ATTR bool sleep_mode = false;
+RTC_DATA_ATTR bool disableSleepMode = false;
+RTC_DATA_ATTR int SLEEP_HOUR = 16;
+RTC_DATA_ATTR int SLEEP_MINUTE = 44;
+
 int i, n;
 bool res;
 bool manualSync = false;
 const char *offsetStatus = "success";
 
-const char *menuItems[] = {"Watch Face", "Time Sync", "Weather Sync", "Weather Format", "Hour Format", "Date Format", "Animation", "WiFi Mode", "Setup WiFi", "Set Time", "Show Battery"};
+const char *menuItems[] = {"Watch Face", "Time Sync", "Weather Sync", "Weather Format", "Hour Format", "Date Format", "Animation", "WiFi Mode", "Setup WiFi", "Set Time", "Sleep Mode", "Show Battery"};
 int16_t menuOptions = sizeof(menuItems) / sizeof(menuItems[0]);
 
 WatchyBase::WatchyBase() {}
@@ -58,11 +63,15 @@ void WatchyBase::init() {
       darkMode = dezign[5];
       weatherFormat = dezign[6];
       dateMode = dezign[7];
+      disableSleepMode = dezign[8];
+      SLEEP_HOUR = dezign[9];
+      SLEEP_MINUTE = dezign[10];
     } else {
       //set defaults
       //[0]watchFace, [1]twelveMode, [2]animMode, [3]weatherMode, [4]syncNTP, [5]darkMode, [6]weatherFormat, [7]dateMode
-      uint8_t dezignString [8] = {watchFace, twelveMode, animMode, weatherMode, 1, 1, 1, 0};
-      res = NVS.setBlob("dezign", dezignString, sizeof(dezignString)); // store dezign [8] to key "dezign" on NVS
+      //[8]disableSleepMode, [9]SLEEP_HOUR, [10]SLEEP_MINUTE
+      uint8_t dezignString [11] = {watchFace, twelveMode, animMode, weatherMode, 1, 1, 1, 0, disableSleepMode, SLEEP_HOUR, SLEEP_MINUTE};
+      res = NVS.setBlob("dezign", dezignString, sizeof(dezignString)); // store dezign [11] to key "dezign" on NVS
     }
   }
 
@@ -78,20 +87,26 @@ void WatchyBase::init() {
 
       if (guiState == WATCHFACE_STATE) {
         RTC.read(currentTime);
+
+        if (currentTime.Hour == SLEEP_HOUR && currentTime.Minute == SLEEP_MINUTE && !disableSleepMode) {
+          sleep_mode = true;
+          RTC.alarmInterrupt(ALARM_2, false);
+        }
+
         showWatchFace(true); //partial updates on tick
       }
       break;
 
     case ESP_SLEEP_WAKEUP_EXT1: //button Press + no handling if wakeup
-      //      if (sleep_mode) {
-      //        sleep_mode = false;
-      //        RTC.alarmInterrupt(ALARM_2, true);
-      //        RTC.alarm(ALARM_2); //resets the alarm flag in the RTC
-      //
-      //        RTC.read(currentTime);
-      //        showWatchFace(false); //full update on wakeup from sleep mode
-      //        break;
-      //      }
+      if (sleep_mode) {
+        sleep_mode = false;
+        RTC.alarmInterrupt(ALARM_2, true);
+        RTC.alarm(ALARM_2); //resets the alarm flag in the RTC
+        runOnce = true;
+        RTC.read(currentTime);
+        showWatchFace(false); //full update on wakeup from sleep mode
+        break;
+      }
 
       handleButtonPress();
       break;
@@ -113,9 +128,23 @@ void WatchyBase::init() {
   deepSleep();
 }
 
+//bool WatchyBase::watchFaceDisabled(){
+//    return sleep_mode;
+//}
+
+void WatchyBase::deepSleep() {
+  esp_sleep_enable_ext0_wakeup(RTC_PIN, 0); //enable deep sleep wake on RTC interrupt
+  esp_sleep_enable_ext1_wakeup(EXT_INT_MASK, ESP_EXT1_WAKEUP_ANY_HIGH); //enable deep sleep wake on button press
+  esp_deep_sleep_start();
+}
+
 void WatchyBase::saveVars() {
-  uint8_t dezignString [8] = {watchFace, twelveMode, animMode, weatherMode, (syncNTP) ? 1 : 0, (darkMode) ? 1 : 0, (weatherFormat) ? 1 : 0, (dateMode) ? 1 : 0};
-  res = NVS.setBlob("dezign", dezignString, sizeof(dezignString)); // store dezign [8] to key "dezign" on NVS
+  //[0]watchFace, [1]twelveMode, [2]animMode, [3]weatherMode, [4]syncNTP, [5]darkMode, [6]weatherFormat, [7]dateMode
+  //[8]disableSleepMode, [9]SLEEP_HOUR, [10]SLEEP_MINUTE
+  uint8_t dezignString [11] = {watchFace, twelveMode, animMode, weatherMode, (syncNTP) ? 1 : 0, (darkMode) ? 1 : 0, (weatherFormat) ? 1 : 0, (dateMode) ? 1 : 0,
+                               (disableSleepMode) ? 1 : 0, SLEEP_HOUR, SLEEP_MINUTE
+                              };
+  res = NVS.setBlob("dezign", dezignString, sizeof(dezignString)); // store dezign [11] to key "dezign" on NVS
 }
 
 void WatchyBase::handleButtonPress() {
@@ -160,6 +189,9 @@ void WatchyBase::handleButtonPress() {
           setTime();
           break;
         case 10:
+          sleepModeApp();
+          break;
+        case 11:
           showBattery();
           break;
         default:
@@ -277,6 +309,9 @@ void WatchyBase::handleButtonPress() {
               setTime();
               break;
             case 10:
+              sleepModeApp();
+              break;
+            case 11:
               showBattery();
               break;
             default:
@@ -544,6 +579,7 @@ void WatchyBase::showFastMenu(byte menuIndex) {
 }
 
 void WatchyBase::watchfaceApp() {
+  guiState == APP_STATE;
   display.init(0, false); //_initial_refresh to false to prevent full update on init
   display.setFullWindow();
   display.fillScreen(GxEPD_BLACK);
@@ -592,6 +628,7 @@ void WatchyBase::watchfaceApp() {
 }
 
 void WatchyBase::animationApp() {
+  guiState == APP_STATE;
   display.init(0, false); //_initial_refresh to false to prevent full update on init
   display.setFullWindow();
   display.fillScreen(GxEPD_BLACK);
@@ -639,6 +676,7 @@ void WatchyBase::animationApp() {
 }
 
 void WatchyBase::weatherApp() {
+  guiState == APP_STATE;
   display.init(0, false); //_initial_refresh to false to prevent full update on init
   display.setFullWindow();
   display.fillScreen(GxEPD_BLACK);
@@ -736,8 +774,8 @@ void WatchyBase::weatherApp() {
 }
 
 void WatchyBase::weatherFormatApp() {
-
-
+  guiState == APP_STATE;
+  display.init(0, false); //_initial_refresh to false to prevent full update on init
 
   char *listItems[] = {"Celcius", "Farenheit"};
   byte itemCount = sizeof(listItems) / sizeof(listItems[0]);
@@ -785,7 +823,8 @@ void WatchyBase::weatherFormatApp() {
 }
 
 void WatchyBase::twelveModeApp() {
-
+  guiState == APP_STATE;
+  display.init(0, false); //_initial_refresh to false to prevent full update on init
   char *listItems[] = {"12 Hour", "24 Hour"};
   byte itemCount = sizeof(listItems) / sizeof(listItems[0]);
 
@@ -831,8 +870,180 @@ void WatchyBase::twelveModeApp() {
   showMenu(menuIndex, false);
 }
 
-void WatchyBase::dateModeApp() {
+void WatchyBase::sleepModeApp() {
+  guiState == APP_STATE;
+  display.init(0, false); //_initial_refresh to false to prevent full update on init
+  char *listItems[] = {"Sleep Mode On", "Sleep Mode Off", "Sleep Now", "Set Sleep Time"};
+  byte itemCount = sizeof(listItems) / sizeof(listItems[0]);
 
+  uint16_t listIndex = disableSleepMode;
+
+  //Send the stored value to set the selected item
+  showList(listItems, itemCount, disableSleepMode, true, false);
+
+  while (1) {
+
+    if (digitalRead(BACK_BTN_PIN) == 1) {
+      vibrate();
+      saveVars();
+      if (debugger) {
+        Serial.print("disableSleepMode: ");
+        Serial.println((disableSleepMode) ? "True" : "False");
+      }
+      break;
+    }
+
+    if (digitalRead(MENU_BTN_PIN) == 1) {
+      vibrate();
+      if (listIndex < 2) {
+        disableSleepMode = listIndex;
+        showList(listItems, itemCount, listIndex, true, true);
+      } else if (listIndex == 2) {
+        break;
+      } else if (listIndex == 3) {
+
+        int8_t minute = SLEEP_MINUTE;
+        int8_t hour = SLEEP_HOUR;
+
+        int8_t setIndex = SET_HOUR;
+
+        int8_t blink = 0;
+
+        pinMode(DOWN_BTN_PIN, INPUT);
+        pinMode(UP_BTN_PIN, INPUT);
+        pinMode(MENU_BTN_PIN, INPUT);
+        pinMode(BACK_BTN_PIN, INPUT);
+
+        display.init(0, true); //_initial_refresh to false to prevent full update on init
+
+        while (1) {
+
+          if (digitalRead(MENU_BTN_PIN) == 1) {
+            setIndex++;
+            if (setIndex > SET_MINUTE) {
+              vibrate();
+              SLEEP_HOUR = hour;
+              SLEEP_MINUTE = minute;
+              break;
+            }
+          }
+          if (digitalRead(BACK_BTN_PIN) == 1) {
+            if (setIndex != SET_HOUR) {
+              setIndex--;
+              vibrate();
+            }
+          }
+
+          blink = 1 - blink;
+
+          if (digitalRead(DOWN_BTN_PIN) == 1) {
+            blink = 1;
+            switch (setIndex) {
+              case SET_HOUR:
+                vibrate();
+                hour == 23 ? (hour = 0) : hour++;
+                break;
+              case SET_MINUTE:
+                vibrate();
+                minute == 59 ? (minute = 0) : minute++;
+                break;
+              default:
+                break;
+            }
+          }
+
+          if (digitalRead(UP_BTN_PIN) == 1) {
+            blink = 1;
+            switch (setIndex) {
+              case SET_HOUR:
+                vibrate();
+                hour == 0 ? (hour = 23) : hour--;
+                break;
+              case SET_MINUTE:
+                vibrate();
+                minute == 0 ? (minute = 59) : minute--;
+                break;
+              default:
+                break;
+            }
+          }
+
+          display.fillScreen(GxEPD_BLACK);
+          display.setTextColor(GxEPD_WHITE);
+          display.setFont(&DSEG7_Classic_Bold_53);
+
+          display.setCursor(5, 125);
+          if (setIndex == SET_HOUR) { //blink hour digits
+            display.setTextColor(blink ? GxEPD_WHITE : GxEPD_BLACK);
+          }
+          if (hour < 10) {
+            display.print("0");
+          }
+          display.print(hour);
+
+          display.setTextColor(GxEPD_WHITE);
+          display.print(":");
+
+          display.setCursor(108, 125);
+          if (setIndex == SET_MINUTE) { //blink minute digits
+            display.setTextColor(blink ? GxEPD_WHITE : GxEPD_BLACK);
+          }
+          if (minute < 10) {
+            display.print("0");
+          }
+          display.print(minute);
+
+          display.display(true); //partial refresh
+        }
+
+
+      }
+
+      if (listIndex != 2) {
+        listIndex = 0;
+        showList(listItems, itemCount, listIndex, false, true);
+      }
+
+    }
+
+    if (digitalRead(DOWN_BTN_PIN) == 1) {
+      listIndex == (itemCount - 1) ? (listIndex = 0) : listIndex++;
+      vibrate();
+      showList(listItems, itemCount, listIndex, false, true);
+      if (debugger)
+        Serial.println(String(listIndex));
+      RTC.read(currentTime);
+    }
+
+    if (digitalRead(UP_BTN_PIN) == 1) {
+      listIndex == 0 ? (listIndex = (itemCount - 1)) : listIndex--;
+      vibrate();
+      showList(listItems, itemCount, listIndex, false, true);
+      if (debugger)
+        Serial.println(String(listIndex));
+      RTC.read(currentTime);
+    }
+
+  }
+  
+  if (listIndex == 2) {
+    sleep_mode = true;
+    saveVars();
+    RTC.alarm(ALARM_2); //resets the alarm flag in the RTC
+    RTC.read(currentTime);
+    RTC.alarmInterrupt(ALARM_2, false);
+    showWatchFace(true);
+    menuIndex = 0;
+  }
+  
+  display.hibernate();
+  if (listIndex != 2)
+    showMenu(menuIndex, true);
+}
+
+void WatchyBase::dateModeApp() {
+  guiState == APP_STATE;
+  display.init(0, false); //_initial_refresh to false to prevent full update on init
   char *listItems[] = {"MM/DD", "DD/MM"};
   byte itemCount = sizeof(listItems) / sizeof(listItems[0]);
 
@@ -879,7 +1090,8 @@ void WatchyBase::dateModeApp() {
 }
 
 void WatchyBase::ntpApp() {
-
+  guiState == APP_STATE;
+  display.init(0, false); //_initial_refresh to false to prevent full update on init
   char *listItems[] = {"When Charging", "Once a Day (3am)", "Off", "Now (Press Menu)"};
   byte itemCount = sizeof(listItems) / sizeof(listItems[0]);
 
@@ -955,7 +1167,8 @@ void WatchyBase::ntpApp() {
 }
 
 void WatchyBase::wifiModeApp() {
-
+  guiState == APP_STATE;
+  display.init(0, false); //_initial_refresh to false to prevent full update on init
   char *listItems[] = {"Multi APs", "Default WiFi"};
   byte itemCount = sizeof(listItems) / sizeof(listItems[0]);
 
@@ -1205,7 +1418,7 @@ void WatchyBase::getWifi() {
 
     if (debugger)
       Serial.println("Trying: " + String(accessPoints[n]));
-      
+
     //Sanity Check Wifi Credentials against number of declared Access Points
     wifiError = (accessPointCount != apPasswordsCount) ? true : (accessPointCount != apTimeoutsCount) ? true : (accessPointCount != cityNamesCount) ? true
                 : (accessPointCount != cityAbbvCount) ? true : false;
@@ -1214,7 +1427,7 @@ void WatchyBase::getWifi() {
         Serial.println("AP Count & Credential Mismatch");
       break;
     }
-    
+
     WiFi.begin(accessPoints[n], apPasswords[n]);
     i = 0;
     while (i < apTimeouts[n] && WiFi.status() != WL_CONNECTED) {

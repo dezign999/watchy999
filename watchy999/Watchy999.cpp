@@ -218,8 +218,8 @@ void Watchy999::drawWatchFace() {
       showCached = false;
     } else {
       showCached = true;
-      if(debugger)
-        showCached = false;
+//      if(debugger)
+//        showCached = false;
     }
 
     drawWeather();
@@ -260,6 +260,13 @@ void Watchy999::drawWatchFace() {
 
   if(WiFi.status() == WL_CONNECTED)
     disableWiFi();
+
+  if(sleep_mode){
+        display.fillScreen(GxEPD_BLACK);
+        display.drawBitmap(0, 0, sleepmode, DISPLAY_WIDTH, DISPLAY_HEIGHT, GxEPD_WHITE);
+        display.display(false);
+        return;
+    }
 
   display.display(true);
 

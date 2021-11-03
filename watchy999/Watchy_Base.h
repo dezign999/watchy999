@@ -31,6 +31,10 @@ extern RTC_DATA_ATTR bool isNight;
 extern uint16_t ambientOffset;
 extern RTC_DATA_ATTR String dezign;
 extern int ntpSyncHour;
+extern RTC_DATA_ATTR bool sleep_mode;
+extern RTC_DATA_ATTR int SLEEP_HOUR;
+extern RTC_DATA_ATTR int SLEEP_MINUTE;
+
 
 // Btn definitions
 //#define IS_DOUBLE_TAP       (wakeupBit & ACC_INT_MASK && guiState == WATCHFACE_STATE)
@@ -44,6 +48,8 @@ class WatchyBase : public Watchy {
     WatchyBase();
     virtual void init();
     virtual void handleButtonPress();
+    virtual void deepSleep();
+//    bool watchFaceDisabled();
     void vibrate(uint8_t times = 1, uint32_t delay_time = 50);
     esp_sleep_wakeup_cause_t wakeup_reason;
     void saveVars();
@@ -59,6 +65,8 @@ class WatchyBase : public Watchy {
     void weatherApp();
     void weatherFormatApp();
     void ntpApp();
+    void sleepModeApp();
+//    void setSleepTime();
     weatherData weather999();
     bool noAlpha(String str);
     String getCityName();
