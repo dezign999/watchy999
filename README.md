@@ -5,7 +5,7 @@ What started out as a way to have more than one watch face on the Watchy by SQFM
 
 Why Watchy999?
 
-In learning Arduino and creating a way for multiple watch faces, I've made what works best "for me." I've standardized basic time functions to make creating watch faces as easy as possible. By simply looking over my example watch faces, you should be able to discern what's necessary to build your own watch face with little to no experience coding. That's how I started, I knew nothing, and thanks to a few thoughtful devs on the Pebble, I found my niche. I hope Watchy999 folks in that same way.
+In learning Arduino and creating a way for multiple watch faces, I've made what works best "for me." I've standardized basic time functions to make creating watch faces as easy as possible. By simply looking over my example watch faces, you should be able to discern what's necessary to build your own watch face with little to no experience coding. That's how I started, I knew nothing, and thanks to a few thoughtful devs on the Pebble, I found my niche. I hope this helps Watchy999 folks in that same way.
 
 Offical Release or not?
 
