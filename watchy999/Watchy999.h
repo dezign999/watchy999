@@ -58,6 +58,9 @@ class Watchy999 : public WatchyBase{
         void drawLowBattWatchFace();
         //G5600
         void drawG5600WatchFace();
+        //TimeScreen
+        void drawTimeScreenFace();
+        void rightJustify(const String txt, uint16_t &yPos);
         //Universal
         timeData getTimeDate();
         void drawWatchFace();

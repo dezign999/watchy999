@@ -7,6 +7,7 @@
 #include "crushem999.h"
 #include "lowBatt999.h"
 #include "G5600.h"
+#include "TimeScreen.h"
 
 RTC_DATA_ATTR bool charging = false;
 RTC_DATA_ATTR bool chargeSync = false;
@@ -247,6 +248,8 @@ void Watchy999::drawWatchFace() {
     drawWatchytrisWatchFace();
   } else if (watchFace == 7) { //G5600 by NiVZ
     drawG5600WatchFace();
+  } else if (watchFace == 8) { //TimeScreen from Watchy-Screen
+    drawTimeScreenFace();
   }
 
   if(debugger)
