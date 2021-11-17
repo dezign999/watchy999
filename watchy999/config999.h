@@ -6,9 +6,6 @@ RTC_DATA_ATTR bool debugger = false;
 RTC_DATA_ATTR int  gmtOffset = 0;
 const char* ntpServer = "pool.ntp.org";
 
-//NTP Sync hour in 24hour format - 3am default
-int ntpSyncHour = 3;
-
 uint16_t ambientOffset = 7; //This varies for every RTC. Mine runs 7° C hotter than outside the watch.
 
 //weather api - Update these to match your city/country/api key
