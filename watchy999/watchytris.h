@@ -7,8 +7,15 @@ const unsigned char *trisSmallNums[10] = { ts0, ts1, ts2, ts3, ts4, ts5, ts6, ts
 void Watchy999::drawWatchytrisWatchFace() {
 
   //BG
-  display.fillScreen(GxEPD_BLACK);
-  display.drawBitmap(0, 0, tbg, DISPLAY_WIDTH, DISPLAY_HEIGHT, GxEPD_WHITE);
+  display.fillScreen(GxEPD_WHITE);
+//  display.drawBitmap(0, 0, tbg, DISPLAY_WIDTH, DISPLAY_HEIGHT, GxEPD_WHITE);
+  display.drawBitmap(0, 0, tBricks, 16, 200, GxEPD_BLACK);
+  display.drawBitmap(120, 0, tBricks, 16, 200, GxEPD_BLACK);
+  display.fillRect(138, 0, 62, 200, GxEPD_BLACK);
+  display.drawBitmap(138, 18, tDateBg, 62, 44, GxEPD_WHITE);
+  display.drawBitmap(141, 69, tStepsbg, 56, 33, GxEPD_WHITE);
+  display.drawBitmap(141, 105, tTempbg, 56, 33, GxEPD_WHITE);
+  display.drawBitmap(141, 145, tBglg, 56, 49, GxEPD_WHITE);
 
   //Hour
   display.drawBitmap(24, 17, tris_nums[(latestTime.hour1 - '0')], 39, 78, GxEPD_BLACK); //first digit

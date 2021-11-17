@@ -30,10 +30,11 @@ extern RTC_DATA_ATTR bool showWeather;
 extern RTC_DATA_ATTR bool isNight;
 extern uint16_t ambientOffset;
 extern RTC_DATA_ATTR String dezign;
-extern int ntpSyncHour;
 extern RTC_DATA_ATTR bool sleep_mode;
 extern RTC_DATA_ATTR int SLEEP_HOUR;
 extern RTC_DATA_ATTR int SLEEP_MINUTE;
+extern RTC_DATA_ATTR int SYNC_HOUR;
+extern RTC_DATA_ATTR int SYNC_MINUTE;
 
 
 // Btn definitions

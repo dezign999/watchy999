@@ -7,10 +7,12 @@
 #include "crushem999.h"
 #include "lowBatt999.h"
 #include "G5600.h"
-#include "TimeScreen.h"
+#include "pebbleText.h"
+#include "doom999.h"
 
 RTC_DATA_ATTR bool charging = false;
 RTC_DATA_ATTR bool chargeSync = false;
+RTC_DATA_ATTR bool showCached = true;
 RTC_DATA_ATTR float oldVoltage;
 RTC_DATA_ATTR float maxVoltage = 4.2;
 RTC_DATA_ATTR float battCalculator;
@@ -21,11 +23,76 @@ RTC_DATA_ATTR int oldSteps = 0;
 RTC_DATA_ATTR int updateHour;
 RTC_DATA_ATTR int lowBattHour;
 RTC_DATA_ATTR int lowBattMin;
+RTC_DATA_ATTR int sensorDayStamp;
 
 RTC_DATA_ATTR timeData latestTime;
 RTC_DATA_ATTR bool lowBattFace = false;
 
+//Word Time Strings
+const char *ONES[] = {"", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve",  "thirteen"};
+const char *TENS[] = {"o'", nullptr, "twenty", "thirty", "forty", "fifty"};
+const char* TEENS_SPLIT[][2] = {
+  {"", ""},
+  {"eleven", ""},
+  {"twelve", ""},
+  {"thirteen", ""},
+  {"four", "teen"},
+  {"fifteen", ""},
+  {"sixteen", ""},
+  {"seven", "teen"},
+  {"eight", "teen"},
+  {"nine", "teen"}
+};
+
+//pxl Time Font
+uint8_t pxlLength[10] = { 4, 3, 5, 5, 3, 5, 5, 4, 7, 5 };
+uint8_t pxlZero[16] = { 11, 0, 31, 11, 0, 11, 11, 31, 42, 11, 11, 31, 11, 42, 31, 11 };
+uint8_t pxlOne[12] = { 11, 10, 10, 11, 21, 0, 11, 42, 0, 42, 53, 11 };
+uint8_t pxlTwo[20] = { 0, 0, 42, 10, 42, 10, 11, 11, 11, 21, 31, 11, 0, 32, 11, 10, 0, 42, 53, 11 };
+uint8_t pxlThree[20] = { 0, 0, 42, 10, 42, 10, 11, 11, 0, 21, 42, 11, 42, 32, 11, 10, 0, 42, 42, 11 };
+uint8_t pxlFour[12] = { 0, 0, 11, 21, 11, 21, 31, 11, 42, 0, 11, 53 };
+uint8_t pxlFive[20] = { 0, 0, 53, 11, 0, 11, 11, 10, 0, 21, 42, 11, 42, 32, 11, 10, 0, 42, 42, 11 };
+uint8_t pxlSix[20] = { 11, 0, 42, 11, 0, 11, 11, 31, 11, 21, 31, 11, 42, 32, 11, 10, 11, 42, 31, 11 };
+uint8_t pxlSeven[16] = { 0, 0, 53, 11, 42, 11, 11, 10, 31, 21, 11, 11, 20, 32, 11, 21 };
+uint8_t pxlEight[28] = { 11, 0, 31, 11, 0, 11, 11, 10, 42, 11, 11, 10, 11, 21, 31, 11, 0, 32, 11, 10, 42, 32, 11, 10, 11, 42, 31, 11 };
+uint8_t pxlNine[20] = { 11, 0, 31, 10, 0, 10, 11, 11, 42, 10, 11, 32, 11, 21, 31, 11, 11, 42, 31, 11 };
+uint8_t* pxlDigits[] = { pxlZero, pxlOne, pxlTwo, pxlThree, pxlFour, pxlFive, pxlSix, pxlSeven, pxlEight, pxlNine };
+
+//LECO Font
+uint8_t lecoLength[10] = { 4, 3, 6, 4, 3, 6, 5, 3, 5, 5 };
+uint8_t lecoZero[16] = { 0, 0, 21, 6, 0, 6, 6, 18, 15, 6, 6, 18, 0, 24, 21, 6 };
+uint8_t lecoOne[12] = { 2, 0, 12, 6, 8, 6, 6, 18, 0, 24, 21, 6 };
+uint8_t lecoTwo[24] = { 0, 0, 6, 9, 6, 0, 9, 6, 15, 0, 6, 18, 0, 12, 6, 18, 6, 12, 9, 6, 6, 24, 15, 6 };
+uint8_t lecoThree[16] = { 0, 0, 15, 6, 15, 0, 6, 30, 3, 12, 12, 6, 0, 24, 15, 6 };
+uint8_t lecoFour[12] = { 0, 0, 6, 18, 6, 12, 9, 6, 15, 0, 6, 30 };
+uint8_t lecoFive[24] = { 0, 0, 21, 6, 0, 6, 6, 12, 6, 12, 15, 6, 0, 21, 6, 9, 6, 24, 9, 6, 15, 18, 6, 12 };
+uint8_t lecoSix[20] = { 0, 0, 6, 30, 6, 0, 15, 6, 6, 12, 15, 6, 15, 18, 6, 6, 6, 24, 15, 6 };
+uint8_t lecoSeven[12] = { 0, 0, 6, 9, 6, 0, 15, 6, 15, 6, 6, 24 };
+uint8_t lecoEight[20] = { 0, 0, 6, 30, 6, 0, 9, 6, 15, 0, 6, 30, 6, 12, 9, 6, 6, 24, 9, 6 };
+uint8_t lecoNine[20] = { 0, 0, 6, 18, 6, 0, 9, 6, 15, 0, 6, 30, 6, 12, 9, 6, 0, 24, 15, 6 };
+uint8_t* lecoDigits[] = { lecoZero, lecoOne, lecoTwo, lecoThree, lecoFour, lecoFive, lecoSix, lecoSeven, lecoEight, lecoNine };
+
 Watchy999::Watchy999() {}
+
+void Watchy999::drawPxlNum(int pDigit, int pX, int pY, bool colorChange) {
+  for (uint8_t i = 0; i < pxlLength[pDigit]; i++) {
+    display.fillRect((pxlDigits[pDigit][i * 4] + pX), pxlDigits[pDigit][(i * 4) + 1] + pY, pxlDigits[pDigit][(i * 4) + 2], pxlDigits[pDigit][(i * 4) + 3], (colorChange) ? GxEPD_WHITE : GxEPD_BLACK);
+  }
+}
+
+void Watchy999::drawLecoNum(int pDigit, int pX, int pY, bool colorChange) {
+  for (uint8_t i = 0; i < lecoLength[pDigit]; i++) {
+    display.fillRect((lecoDigits[pDigit][i * 4] + pX), lecoDigits[pDigit][(i * 4) + 1] + pY, lecoDigits[pDigit][(i * 4) + 2], lecoDigits[pDigit][(i * 4) + 3], (colorChange) ? GxEPD_WHITE : GxEPD_BLACK);
+  }
+}
+
+void Watchy999::centerJustify(const String txt, uint16_t xPos, uint16_t yPos) {
+  int16_t x1, y1;
+  uint16_t w, h;
+  display.getTextBounds(txt, 0, 0, &x1, &y1, &w, &h);
+  display.setCursor(xPos-w/2, yPos);
+  display.print(txt);  
+}
 
 timeData Watchy999::getTimeDate() {
 
@@ -54,26 +121,21 @@ timeData Watchy999::getTimeDate() {
 
   String monthStr;
   String dateStr;
+  String longYearStr;
+  String shortYearStr;
   char month1;
   char month2;
   char date1;
   char date2;
 
-//  if (dateMode == 0) {
-    monthStr = currentTime.Month < 10 ? "0" + String(currentTime.Month) : String(currentTime.Month);
-    dateStr = currentTime.Day < 10 ? "0" + String(currentTime.Day) : String(currentTime.Day);
-    month1 = (currentTime.Month / 10 != 0) ? String(currentTime.Month / 10).charAt(0) : '0';
-    month2 = String(currentTime.Month % 10).charAt(0);
-    date1 = (currentTime.Day / 10 != 0) ? String(currentTime.Day / 10).charAt(0) : '0';
-    date2 = String(currentTime.Day % 10).charAt(0);
-//  } else {
-//    monthStr = currentTime.Day < 10 ? "0" + String(currentTime.Day) : String(currentTime.Day);
-//    dateStr = currentTime.Month < 10 ? "0" + String(currentTime.Month) : String(currentTime.Month);
-//    date1 = (currentTime.Month / 10 != 0) ? String(currentTime.Month / 10).charAt(0) : '0';
-//    date2 = String(currentTime.Month % 10).charAt(0);
-//    month1 = (currentTime.Day / 10 != 0) ? String(currentTime.Day / 10).charAt(0) : '0';
-//    month2 = String(currentTime.Day % 10).charAt(0);
-//  }
+  monthStr = currentTime.Month < 10 ? "0" + String(currentTime.Month) : String(currentTime.Month);
+  dateStr = currentTime.Day < 10 ? "0" + String(currentTime.Day) : String(currentTime.Day);
+  longYearStr = String(currentTime.Year + 1970);
+  shortYearStr = String(currentTime.Year + 1970).charAt(3) + String(currentTime.Year + 1970).charAt(4);
+  month1 = (currentTime.Month / 10 != 0) ? String(currentTime.Month / 10).charAt(0) : '0';
+  month2 = String(currentTime.Month % 10).charAt(0);
+  date1 = (currentTime.Day / 10 != 0) ? String(currentTime.Day / 10).charAt(0) : '0';
+  date2 = String(currentTime.Day % 10).charAt(0);
 
   char *dayNames[7] = { "SUN" , "MON" , "TUE" , "WED" , "THU" , "FRI" , "SAT" };
   char *monthNames[12] = { "JAN" , "FEB" , "MAR" , "APR" , "MAY" , "JUN" , "JUL" , "AUG" , "SEP" , "OCT" , "NOV" , "DEC" };
@@ -82,10 +144,6 @@ timeData Watchy999::getTimeDate() {
   char *monthAbbrev = monthNames[currentTime.Month - 1];
 
   isNight = (currentTime.Hour >= 18 || currentTime.Hour <= 5) ? true : false;
-  if (debugger) {
-    Serial.print("isNight: ");
-    Serial.println((isNight) ? "True" : "False");
-  }
 
   latestTime.hour1 = hour1;
   latestTime.hour2 = hour2;
@@ -101,6 +159,8 @@ timeData Watchy999::getTimeDate() {
   latestTime.date2 = date2;
   latestTime.dayAbbrev = dayAbbrev;
   latestTime.monthAbbrev = monthAbbrev;
+  latestTime.longYearStr = longYearStr;
+  latestTime.shortYearStr = shortYearStr;
 
   return latestTime;
 }
@@ -179,14 +239,17 @@ void Watchy999::checkBattery() {
 }
 
 void Watchy999::checkSteps() {
-  if (currentTime.Hour == 0 && currentTime.Minute == 0) {
+
+  if (currentTime.Day != sensorDayStamp) {
     sensor.resetStepCounter();
     stepGoal = 500;
     oldSteps = 0;
+    sensorDayStamp = currentTime.Day;
   }
+  
   int stepNumber = sensor.getCounter();
   if (oldSteps < stepNumber) {
-    if (animMode == 3 && watchFace != 3 && watchFace != 7) { //check for watch faces that use watchAction to toggle design changes
+    if (animMode == 3 && watchFace != 3 && watchFace != 7 && watchFace != 8 && watchFace != 9) { //check for watch faces that use watchAction to toggle design changes
       watchAction = true;
     }
     oldSteps = stepNumber;
@@ -199,7 +262,7 @@ void Watchy999::drawWatchFace() {
 
   checkBattery();
 
-  if (watchFace != 5 && !lowBattFace)
+  if (watchFace != 5 && !lowBattFace && !sleep_mode)
     checkSteps();
 
   if (watchFace == 1 || watchFace == 3 || watchFace == 4 || watchFace == 6) {
@@ -209,24 +272,24 @@ void Watchy999::drawWatchFace() {
   }
 
   if (animMode == 0 && currentTime.Second == 0 || animMode == 1 && currentTime.Minute % 30 == 0 || animMode == 2 && currentTime.Minute == 0) {
-    if (watchFace != 3)
+    if (watchFace != 3 && watchFace != 7 && watchFace != 8 && watchFace != 9 && !sleep_mode)
       watchAction = true;
   }
 
-  if (showWeather && !lowBattFace) {
+  if (showWeather && !lowBattFace && !sleep_mode) {
 
     if (weatherMode == 0 && currentTime.Minute % 30 == 0 && weatherMode != 2 || weatherMode == 1 && currentTime.Minute == 0 && weatherMode != 2 || runOnce || switchFace && updateHour != currentTime.Hour) {
       showCached = false;
     } else {
       showCached = true;
-//      if(debugger)
-//        showCached = false;
+      //      if(debugger)
+      //        showCached = false;
     }
 
     drawWeather();
   }
 
-  if (syncNTP == 1 && currentTime.Hour == ntpSyncHour && currentTime.Minute == 0 && !lowBattFace) { //Sync NTP at specified time (3am default)
+  if (syncNTP == 1 && currentTime.Hour == SYNC_HOUR && currentTime.Minute == SYNC_MINUTE && !lowBattFace || runOnce) { //Sync NTP at specified time (3am default)
     syncNtpTime();
   }
 
@@ -248,28 +311,34 @@ void Watchy999::drawWatchFace() {
     drawWatchytrisWatchFace();
   } else if (watchFace == 7) { //G5600 by NiVZ
     drawG5600WatchFace();
-  } else if (watchFace == 8) { //TimeScreen from Watchy-Screen
-    drawTimeScreenFace();
+  } else if (watchFace == 8) { //Slide Time by Pebble
+    drawPebbleTextFace();
+  } else if (watchFace == 9) { //Doom999
+    drawDoomWatchFace();
   }
-
-  if(debugger)
+  
+  if (debugger)
     Serial.println("runOnce: " + String(runOnce));
-    
-  if(runOnce)
+
+  if (runOnce)
     runOnce = false;
 
-  if(switchFace)
+  if (switchFace)
     switchFace = false;
 
-  if(WiFi.status() == WL_CONNECTED)
+  if (WiFi.status() == WL_CONNECTED)
     disableWiFi();
 
-  if(sleep_mode){
-        display.fillScreen(GxEPD_BLACK);
-        display.drawBitmap(0, 0, sleepmode, DISPLAY_WIDTH, DISPLAY_HEIGHT, GxEPD_WHITE);
-        display.display(false);
-        return;
-    }
+  if (sleep_mode) {
+    display.fillScreen(GxEPD_BLACK);
+//    display.drawBitmap(0, 0, sleepmode, DISPLAY_WIDTH, DISPLAY_HEIGHT, GxEPD_WHITE);
+    display.drawBitmap(113, 56, sleep1, 63, 14, GxEPD_WHITE);
+    display.drawBitmap(65, 68, sleep2, 31, 31, GxEPD_WHITE);
+    display.drawBitmap(0, 99, sleep3, 143, 101, GxEPD_WHITE);
+    display.drawBitmap(143, 138, sleep4, 57, 62, GxEPD_WHITE);
+    display.display(false);
+    return;
+  }
 
   display.display(true);
 

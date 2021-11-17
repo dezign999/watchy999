@@ -13,6 +13,8 @@ typedef struct timeData{
     String minStr;
     String monthStr;
     String dateStr;
+    String longYearStr;
+    String shortYearStr;
     char month1;
     char month2;
     char date1;
@@ -26,6 +28,10 @@ extern RTC_DATA_ATTR timeData latestTime;
 extern RTC_DATA_ATTR int lowBattHour;
 extern RTC_DATA_ATTR int lowBattMin;
 extern RTC_DATA_ATTR bool lowBattFace;
+extern RTC_DATA_ATTR bool showCached;
+extern const char *ONES[];
+extern const char *TENS[];
+extern const char* TEENS_SPLIT[][2];
 
 class Watchy999 : public WatchyBase{
     public:
@@ -58,15 +64,19 @@ class Watchy999 : public WatchyBase{
         void drawLowBattWatchFace();
         //G5600
         void drawG5600WatchFace();
-        //TimeScreen
-        void drawTimeScreenFace();
-        void rightJustify(const String txt, uint16_t &yPos);
+        //Doom999
+        void drawDoomWatchFace();
+        //Slide Time
+        void drawPebbleTextFace();
         //Universal
         timeData getTimeDate();
         void drawWatchFace();
         void checkBattery();
         void drawWeather();
         void checkSteps();
+        void centerJustify(const String txt, uint16_t xPos, uint16_t yPos);
+        void drawLecoNum(int pDigit, int pX, int pY, bool colorChange);
+        void drawPxlNum(int pDigit, int pX, int pY, bool colorChange);
         
 };
 

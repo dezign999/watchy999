@@ -30,8 +30,10 @@ RTC_DATA_ATTR int oldPrefAP = 666;
 RTC_DATA_ATTR bool wifiError = false;
 RTC_DATA_ATTR bool sleep_mode = false;
 RTC_DATA_ATTR bool disableSleepMode = false;
-RTC_DATA_ATTR int SLEEP_HOUR = 16;
-RTC_DATA_ATTR int SLEEP_MINUTE = 44;
+RTC_DATA_ATTR int SLEEP_HOUR = 0;
+RTC_DATA_ATTR int SLEEP_MINUTE = 0;
+RTC_DATA_ATTR int SYNC_HOUR = 23;
+RTC_DATA_ATTR int SYNC_MINUTE = 59;
 
 int i, n;
 bool res;
@@ -66,11 +68,13 @@ void WatchyBase::init() {
       disableSleepMode = dezign[8];
       SLEEP_HOUR = dezign[9];
       SLEEP_MINUTE = dezign[10];
+      SYNC_HOUR = dezign[11];
+      SYNC_MINUTE = dezign[12];
     } else {
       //set defaults
       //[0]watchFace, [1]twelveMode, [2]animMode, [3]weatherMode, [4]syncNTP, [5]darkMode, [6]weatherFormat, [7]dateMode
       //[8]disableSleepMode, [9]SLEEP_HOUR, [10]SLEEP_MINUTE
-      uint8_t dezignString [11] = {watchFace, twelveMode, animMode, weatherMode, 1, 1, 1, 0, disableSleepMode, SLEEP_HOUR, SLEEP_MINUTE};
+      uint8_t dezignString [13] = {watchFace, twelveMode, animMode, weatherMode, 1, 1, 1, 0, disableSleepMode, SLEEP_HOUR, SLEEP_MINUTE, SYNC_HOUR, SYNC_MINUTE};
       res = NVS.setBlob("dezign", dezignString, sizeof(dezignString)); // store dezign [11] to key "dezign" on NVS
     }
   }
@@ -140,11 +144,11 @@ void WatchyBase::deepSleep() {
 
 void WatchyBase::saveVars() {
   //[0]watchFace, [1]twelveMode, [2]animMode, [3]weatherMode, [4]syncNTP, [5]darkMode, [6]weatherFormat, [7]dateMode
-  //[8]disableSleepMode, [9]SLEEP_HOUR, [10]SLEEP_MINUTE
-  uint8_t dezignString [11] = {watchFace, twelveMode, animMode, weatherMode, (syncNTP) ? 1 : 0, (darkMode) ? 1 : 0, (weatherFormat) ? 1 : 0, (dateMode) ? 1 : 0,
-                               (disableSleepMode) ? 1 : 0, SLEEP_HOUR, SLEEP_MINUTE
+  //[8]disableSleepMode, [9]SLEEP_HOUR, [10]SLEEP_MINUTE, [11]SYNC_HOUR, [12]SYNC_MINUTE
+  uint8_t dezignString [13] = {watchFace, twelveMode, animMode, weatherMode, (syncNTP) ? 1 : 0, (darkMode) ? 1 : 0, (weatherFormat) ? 1 : 0, (dateMode) ? 1 : 0,
+                               (disableSleepMode) ? 1 : 0, SLEEP_HOUR, SLEEP_MINUTE, SYNC_HOUR, SYNC_MINUTE
                               };
-  res = NVS.setBlob("dezign", dezignString, sizeof(dezignString)); // store dezign [11] to key "dezign" on NVS
+  res = NVS.setBlob("dezign", dezignString, sizeof(dezignString)); // store dezign [13] to key "dezign" on NVS
 }
 
 void WatchyBase::handleButtonPress() {
@@ -247,6 +251,7 @@ void WatchyBase::handleButtonPress() {
     RTC.read(currentTime);
     vibrate();
     darkMode = (!darkMode) ? true : false;
+    if(watchFace != 0 && watchFace != 1 && watchFace != 6 && watchFace != 9)
     saveVars();
     showWatchFace(true);
     return;
@@ -254,7 +259,8 @@ void WatchyBase::handleButtonPress() {
 
   if (IS_BTN_RIGHT_DOWN) {
     RTC.read(currentTime);
-    vibrate();
+    if (watchFace != 9)
+      vibrate();
     watchAction = (!watchAction) ? true : false;
     showWatchFace(true);
     return;
@@ -587,7 +593,7 @@ void WatchyBase::watchfaceApp() {
   display.setTextColor(GxEPD_WHITE);
   display.fillScreen(GxEPD_BLACK);
 
-  char *listItems[] = {"DKtime", "pxl", "slides", "synth", "Crush Em", "lowBatt", "Watchytris", "G5600 by NiVZ", "TimeScreen"};
+  char *listItems[] = {"DKtime", "pxl", "slides", "synth", "Crush Em", "lowBatt", "Watchytris", "G5600 by NiVZ", "Pebble", "Doom999"};
   byte itemCount = sizeof(listItems) / sizeof(listItems[0]);
 
   uint16_t listIndex = watchFace;
@@ -1025,7 +1031,7 @@ void WatchyBase::sleepModeApp() {
     }
 
   }
-  
+
   if (listIndex == 2) {
     sleep_mode = true;
     saveVars();
@@ -1035,7 +1041,7 @@ void WatchyBase::sleepModeApp() {
     showWatchFace(true);
     menuIndex = 0;
   }
-  
+
   display.hibernate();
   if (listIndex != 2)
     showMenu(menuIndex, true);
@@ -1092,7 +1098,7 @@ void WatchyBase::dateModeApp() {
 void WatchyBase::ntpApp() {
   guiState == APP_STATE;
   display.init(0, false); //_initial_refresh to false to prevent full update on init
-  char *listItems[] = {"When Charging", "Once a Day (3am)", "Off", "Now (Press Menu)"};
+  char *listItems[] = {"When Charging", "Once a Day", "Off", "Now (Press Menu)", "Set Sync Time"};
   byte itemCount = sizeof(listItems) / sizeof(listItems[0]);
 
   //  uint16_t listIndex = syncIndex;
@@ -1131,7 +1137,7 @@ void WatchyBase::ntpApp() {
       if (debugger)
         Serial.println("ntp listIndex: " + String(listIndex));
 
-      if (listIndex != 3) {
+      if (listIndex < 3) {
         syncNTP = listIndex;
         //        syncIndex = listIndex;
         showList(listItems, itemCount, listIndex, true, true);
@@ -1151,6 +1157,108 @@ void WatchyBase::ntpApp() {
         syncNtpTime();
 
         synced = true;
+      }  else if (listIndex == 4) {
+
+        int8_t minute = SYNC_MINUTE;
+        int8_t hour = SYNC_HOUR;
+
+        int8_t setIndex = SET_HOUR;
+
+        int8_t blink = 0;
+
+        pinMode(DOWN_BTN_PIN, INPUT);
+        pinMode(UP_BTN_PIN, INPUT);
+        pinMode(MENU_BTN_PIN, INPUT);
+        pinMode(BACK_BTN_PIN, INPUT);
+
+        display.init(0, true); //_initial_refresh to false to prevent full update on init
+
+        while (1) {
+
+          if (digitalRead(MENU_BTN_PIN) == 1) {
+            setIndex++;
+            if (setIndex > SET_MINUTE) {
+              vibrate();
+              SYNC_HOUR = hour;
+              SYNC_MINUTE = minute;
+              break;
+            }
+          }
+          if (digitalRead(BACK_BTN_PIN) == 1) {
+            if (setIndex != SET_HOUR) {
+              setIndex--;
+              vibrate();
+            }
+          }
+
+          blink = 1 - blink;
+
+          if (digitalRead(DOWN_BTN_PIN) == 1) {
+            blink = 1;
+            switch (setIndex) {
+              case SET_HOUR:
+                vibrate();
+                hour == 23 ? (hour = 0) : hour++;
+                break;
+              case SET_MINUTE:
+                vibrate();
+                minute == 59 ? (minute = 0) : minute++;
+                break;
+              default:
+                break;
+            }
+          }
+
+          if (digitalRead(UP_BTN_PIN) == 1) {
+            blink = 1;
+            switch (setIndex) {
+              case SET_HOUR:
+                vibrate();
+                hour == 0 ? (hour = 23) : hour--;
+                break;
+              case SET_MINUTE:
+                vibrate();
+                minute == 0 ? (minute = 59) : minute--;
+                break;
+              default:
+                break;
+            }
+          }
+
+          display.fillScreen(GxEPD_BLACK);
+          display.setTextColor(GxEPD_WHITE);
+          display.setFont(&DSEG7_Classic_Bold_53);
+
+          display.setCursor(5, 125);
+          if (setIndex == SET_HOUR) { //blink hour digits
+            display.setTextColor(blink ? GxEPD_WHITE : GxEPD_BLACK);
+          }
+          if (hour < 10) {
+            display.print("0");
+          }
+          display.print(hour);
+
+          display.setTextColor(GxEPD_WHITE);
+          display.print(":");
+
+          display.setCursor(108, 125);
+          if (setIndex == SET_MINUTE) { //blink minute digits
+            display.setTextColor(blink ? GxEPD_WHITE : GxEPD_BLACK);
+          }
+          if (minute < 10) {
+            display.print("0");
+          }
+          display.print(minute);
+
+          display.display(true); //partial refresh
+        }
+
+
+      }
+
+      if (listIndex != 2) {
+        listIndex = 0;
+        showList(listItems, itemCount, listIndex, false, true);
       }
     }
 
@@ -1306,8 +1414,7 @@ void WatchyBase::syncNtpTime() {
 
   if (WiFi.status() == WL_CONNECTED) {
 
-    if (debugger)
-      Serial.println("Offset: " + String(gmtOffset));
+    int gatewayAddress = WiFi.gatewayIP();
 
     if (gmtOffset == 0) { //Get Time Offset
       HTTPClient http;
@@ -1339,6 +1446,11 @@ void WatchyBase::syncNtpTime() {
 
     time_t t;
     bool syncFailed = false;
+
+    if (debugger) {
+      Serial.println("Offset: " + String(gmtOffset));
+      Serial.println("GatewayIP: " + String(gatewayAddress));
+    }  
 
     configTime(gmtOffset, 0, ntpServer);
 

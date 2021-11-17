@@ -1,4 +1,3 @@
-#define TIME_FONT timeLGMono42pt7b
 #define DATE_FONT timeLGMono20pt7b
 #define SMALL_TEXT smTextMono8pt7b
 
@@ -7,19 +6,23 @@ void Watchy999::drawPxlWatchFace() {
   display.fillScreen(GxEPD_BLACK);
 
   //Time
-
   display.setFont(&TIME_FONT);
   display.setTextColor(GxEPD_WHITE);
 
   display.fillRect(11, 27, 128, 124, GxEPD_BLACK); //Redraw Helper
 
+  drawPxlNum(latestTime.hour1 - '0', 18, 33, true);
+  drawPxlNum(latestTime.hour2 - '0', 82, 33, true);
+  drawPxlNum(latestTime.min1 - '0', 18, 95, true);
+  drawPxlNum(latestTime.min2 - '0', 82, 95, true);
+
   //Hour
   display.setCursor(16, 87);
-  display.print(latestTime.hourStr);
+  //  display.print(latestTime.hourStr);
 
   //Minute
   display.setCursor(16, 148);
-  display.print(latestTime.minStr);
+  //  display.print(latestTime.minStr);
 
   //Date
   String dayName = dayStr(currentTime.Wday);

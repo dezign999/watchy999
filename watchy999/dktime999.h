@@ -7,15 +7,18 @@ void Watchy999::drawDkWatchFace() {
 
   //BG
   display.fillScreen(GxEPD_BLACK);
-  display.drawBitmap(0, 0, bg, DISPLAY_WIDTH, DISPLAY_HEIGHT, GxEPD_WHITE);
+  display.drawBitmap(0, 0, bg_top, 200, 73, GxEPD_WHITE);
+  display.drawBitmap(0, 196, bg_bot, 200, 4, GxEPD_WHITE);
+  if(darkMode)
+    display.fillRect(98, 33, 4, 26, GxEPD_WHITE);
 
   //Hour
-  display.drawBitmap(35, 33, dk_nums[(latestTime.hour1 - '0')], 28, 26, GxEPD_WHITE); //first digit
-  display.drawBitmap(66, 33, dk_nums[(latestTime.hour2 - '0')], 28, 26, GxEPD_WHITE); //second digit
+  display.drawBitmap(35, 33, dk_nums[(darkMode) ? (latestTime.month1 - '0') : (latestTime.hour1 - '0')], 28, 26, GxEPD_WHITE); //first digit
+  display.drawBitmap(66, 33, dk_nums[(darkMode) ? (latestTime.month2 - '0') : (latestTime.hour2 - '0')], 28, 26, GxEPD_WHITE); //second digit
 
   //Minute
-  display.drawBitmap(105, 33, dk_nums[(latestTime.min1 - '0')], 28, 26, GxEPD_WHITE); //first digit
-  display.drawBitmap(137, 33, dk_nums[(latestTime.min2 - '0')], 28, 26, GxEPD_WHITE); //second digit
+  display.drawBitmap(105, 33, dk_nums[(darkMode) ? (latestTime.date1 - '0') : (latestTime.min1 - '0')], 28, 26, GxEPD_WHITE); //first digit
+  display.drawBitmap(137, 33, dk_nums[(darkMode) ? (latestTime.date2 - '0') : (latestTime.min2 - '0')], 28, 26, GxEPD_WHITE); //second digit
 
   if (switchFace || watchAction) {
     drawDkAnim();
@@ -26,6 +29,14 @@ void Watchy999::drawDkWatchFace() {
     display.drawBitmap(7, 76, dk_anim1[0], 182, 121, GxEPD_WHITE);
     display.display(true);
   }
+
+  if (darkMode) {
+    darkMode = false;
+    display.display(true);
+    delay(3000);
+    showWatchFace(true);
+  }
+
 }
 
 void Watchy999::drawDkAnim() {
