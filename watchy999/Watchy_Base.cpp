@@ -1148,6 +1148,7 @@ void WatchyBase::ntpApp() {
 
         display.setTextColor(GxEPD_WHITE);
         //        display.setCursor(20, 120);
+        display.fillRect(15, 138, 170, 20, GxEPD_BLACK);
         display.setCursor(20, 145);
         display.println("Checking WiFi");
         display.display(true);
@@ -1428,12 +1429,14 @@ void WatchyBase::syncNtpTime() {
         String payload = http.getString();
         JSONVar responseObject = JSON.parse(payload);
         offsetStatus = responseObject["status"];
-        gmtOffset = int(responseObject["offset"]);
+//        gmtOffset = int(responseObject["offset"]);
         if (strcmp(offsetStatus, "success") != 0) {
           if (manualSync) {
             display.setCursor(20, 160);
             display.println("Offset Failed");
           }
+        } else {
+          gmtOffset = int(responseObject["offset"]); //Good practice edit by @ekalfwonS
         }
       } else {
         //http error
@@ -1508,8 +1511,10 @@ void WatchyBase::syncNtpTime() {
   }
 
   disableWiFi();
-  if (manualSync)
+  if (manualSync) {
     display.display(true);
+    delay(3000);
+  }
   manualSync = false;
 
 }
