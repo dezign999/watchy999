@@ -7,6 +7,8 @@ Copy Watchy.cpp and Watchy.h into your Arduino/libraries/Watchy/src folder.
 You can overwrite the files there, or back up the originals. To restore the originals,
 just reinstall the library from your library manager.
 
+Next, copy the PCF8563 folder into your Arduino/libraries/ folder.
+
 Borders (Optional) uses GxEPD2 Library 1.3.9:
 Copy the GxEPD2_154_D67.cpp & GxEPD2_154_D67.h into Arduino/libraries/GxEPD2/src/epd 
 folder. You can overwrite the originals or back them up. To restore the originals,
