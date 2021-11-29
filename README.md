@@ -33,6 +33,6 @@ It's got my watch faces, do I even need to say more? JK!!! But yeah, I do make s
 
 UPDATE
 
-I have updated this with GuruSR's RTC library which should allow this to run on the new Watchys that have a different RTC (Real Time Clock). It's still a work in progress, and I do not have a new watch to test it on. Please read the intructions.txt file in the libraryFiles folder for more details.
+I have updated this with GuruSR's Border color library that allows you to change the white border around the display area to a more pleasing black. Please read the intructions.txt file in the libraryFiles folder for more details.
 
 To be continued...
