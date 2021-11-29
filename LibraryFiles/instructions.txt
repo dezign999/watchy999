@@ -12,6 +12,10 @@ Copy the GxEPD2_154_D67.cpp & GxEPD2_154_D67.h into Arduino/libraries/GxEPD2/src
 folder. You can overwrite the originals or back them up. To restore the originals,
 just reinstall the library from your library manager.
 
+Once copied over, this functionality must be enabled by editing borders.h and 
+uncommenting //#define ENABLEBORDERS so that preprocessor directives will enable the
+code necessary in watchy999.h and various watch faces.
+
 Pressing the Top Right button on certain watch faces will toggle light or dark mode.
 When in dark mode, the dark background will no longer have a black border around it.
 Furthermore, some screens, like Sleep Screen, will have a much nicer presentation.
