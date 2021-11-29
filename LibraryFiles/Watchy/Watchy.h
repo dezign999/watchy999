@@ -5,7 +5,11 @@
 #include <WiFiManager.h>
 #include <HTTPClient.h>
 #include <Arduino_JSON.h>
-#include <DS3232RTC.h>
+#ifndef PCF8563RTC
+	#include <DS3232RTC.h>
+#else
+	#include <PCF8563.h>
+#endif
 #include <GxEPD2_BW.h>
 #include <Wire.h>
 #include <Fonts/FreeMonoBold9pt7b.h>
