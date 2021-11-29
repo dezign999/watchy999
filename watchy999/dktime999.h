@@ -5,6 +5,9 @@ const unsigned char *dk_anim3 [4] = {dk_5, dk_6, dk_7, dk_8};
 
 void Watchy999::drawDkWatchFace() {
 
+  if(switchFace)
+    darkMode = false;
+
   //BG
   display.fillScreen(GxEPD_BLACK);
   display.drawBitmap(0, 0, bg_top, 200, 73, GxEPD_WHITE);
@@ -27,6 +30,9 @@ void Watchy999::drawDkWatchFace() {
     //Static DK
     display.fillRect(0, 73, 200, 124, GxEPD_BLACK);
     display.drawBitmap(7, 76, dk_anim1[0], 182, 121, GxEPD_WHITE);
+    #ifdef ENABLEBORDERS
+      display.epd2.setDarkBorder(true);
+    #endif
     display.display(true);
   }
 
@@ -51,18 +57,27 @@ void Watchy999::drawDkAnim() {
   if (randNum == 0) {
     for (uint8_t i = 0; i < animOneFrames; i++) {
       display.drawBitmap(7, 76, dk_anim1[i % animFrames], 182, 121, GxEPD_WHITE);
+      #ifdef ENABLEBORDERS
+        display.epd2.setDarkBorder(true);
+      #endif
       display.display(true);
       display.fillRect(0, 76, 200, 121, GxEPD_BLACK);
-    }
+     }
   } else if (randNum == 1) {
     for (uint8_t i = 0; i < animTwoFrames; i++) {
       display.drawBitmap(7, 76, dk_anim2[i % animFrames], 182, 121, GxEPD_WHITE);
+      #ifdef ENABLEBORDERS
+        display.epd2.setDarkBorder(true);
+      #endif
       display.display(true);
       display.fillRect(0, 76, 200, 121, GxEPD_BLACK);
     }
   } else {
     for (uint8_t i = 0; i < animThreeFrames; i++) {
       display.drawBitmap(0, 76, dk_anim3[i % animThreeFrames], 200, 121, GxEPD_WHITE);
+    #ifdef ENABLEBORDERS
+      display.epd2.setDarkBorder(true);
+    #endif
       display.display(true);
       display.fillRect(0, 76, 200, 121, GxEPD_BLACK);
     }
@@ -71,5 +86,7 @@ void Watchy999::drawDkAnim() {
   //Hide Ghosting
   display.fillRect(0, 76, 200, 121, GxEPD_BLACK);
   display.drawBitmap(7, 76, dk_anim1[0], 182, 121, GxEPD_WHITE);
-
+  #ifdef ENABLEBORDERS
+    display.epd2.setDarkBorder(true);
+  #endif
 }

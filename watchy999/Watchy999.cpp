@@ -1,4 +1,5 @@
 #include "Watchy999.h"
+#include "borders.h"
 #include "slides999.h"
 #include "dktime999.h"
 #include "watchytris.h"
@@ -31,18 +32,69 @@ RTC_DATA_ATTR bool lowBattFace = false;
 //Word Time Strings
 const char *ONES[] = {"", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve",  "thirteen"};
 const char *TENS[] = {"o'", nullptr, "twenty", "thirty", "forty", "fifty"};
-const char* TEENS_SPLIT[][2] = {
-  {"", ""},
-  {"eleven", ""},
-  {"twelve", ""},
-  {"thirteen", ""},
-  {"four", "teen"},
-  {"fifteen", ""},
-  {"sixteen", ""},
-  {"seven", "teen"},
-  {"eight", "teen"},
-  {"nine", "teen"}
-};
+const char* TEENS_SPLIT[][2] = { {"", ""}, {"eleven", ""}, {"twelve", ""}, {"thirteen", ""}, {"four", "teen"}, {"fifteen", ""},
+                                 {"sixteen", ""}, {"seven", "teen"}, {"eight", "teen"}, {"nine", "teen"} };
+
+//Watch Face Settings - Boolean 0 False, 1 True - { Show Weather, Show Border, Show Steps }
+uint8_t dktime[3] { 0, 0, 0 };
+uint8_t pxl999[3] { 1, 1, 0 };
+uint8_t slides[3] { 0, 1, 1 };
+uint8_t synth[3] { 1, 1, 0 };
+uint8_t crushem[3] { 1, 0, 1 };
+uint8_t lowbatt[3] { 0, 1, 0};
+uint8_t watchytris[3] { 1, 1, 1 };
+uint8_t G5600[3] { 0, 1, 0 };
+uint8_t pebbletext[3] { 0, 1, 0 };
+uint8_t doom[3] { 0, 0, 0 };
+uint8_t* watchFaces[] = { dktime, pxl999, slides, synth, crushem, lowbatt, watchytris, G5600, pebbletext, doom };
+
+void Watchy999::watchFaceSettings() {
+  showWeather = watchFaces[watchFace][0];
+  showBorder = watchFaces[watchFace][1];
+  showSteps = watchFaces[watchFace][2];
+}
+
+void Watchy999::displayWatchFace() {
+    if (lowBattFace) { //Low Power Face
+    drawLowBattWatchFace();
+  } else {
+    switch (watchFace) {
+      case 0:
+        drawDkWatchFace();
+        break;
+      case 1:
+        drawPxlWatchFace();
+        break;
+      case 2:
+        drawSlidesWatchFace();
+        break;
+      case 3:
+        drawSynthWatchFace();
+        break;
+      case 4:
+        drawCeWatchFace();
+        break;
+      case 5:
+        drawLowBattWatchFace();
+        break;
+      case 6:
+        drawWatchytrisWatchFace();
+        break;
+      case 7:
+        drawG5600WatchFace();
+        break;
+      case 8:
+        drawPebbleTextFace();
+        break;
+      case 9:
+        drawDoomWatchFace();
+        break;
+      default:
+        drawDkWatchFace();
+    }
+
+  }
+}
 
 //pxl Time Font
 uint8_t pxlLength[10] = { 4, 3, 5, 5, 3, 5, 5, 4, 7, 5 };
@@ -90,8 +142,8 @@ void Watchy999::centerJustify(const String txt, uint16_t xPos, uint16_t yPos) {
   int16_t x1, y1;
   uint16_t w, h;
   display.getTextBounds(txt, 0, 0, &x1, &y1, &w, &h);
-  display.setCursor(xPos-w/2, yPos);
-  display.print(txt);  
+  display.setCursor(xPos - w / 2, yPos);
+  display.print(txt);
 }
 
 timeData Watchy999::getTimeDate() {
@@ -213,14 +265,14 @@ void Watchy999::drawWeather() {
 void Watchy999::checkBattery() {
   //Sync NTP when charging, this is very very amateur, but it works and will only sync once per usb connection
   float battery =  analogReadMilliVolts(ADC_PIN) / 1000.0f * 2.0f;
-  charging = (currentTime.Minute % 2 == 0) && (battery > oldVoltage) ? true : (battery < oldVoltage) ? false : charging;
+  charging = (battery > oldVoltage) ? true : false;
   oldVoltage = (oldVoltage == 0) ? battery : (battery > oldVoltage) ? battery : oldVoltage;
 
   if (battery < 3.6 && lowBattFace == false) {
     lowBattFace = true;
-    lowBattHour = currentTime.Hour;
-    lowBattMin = latestTime.minStr.toInt();
-  } else if (battery > 3.6 && charging) {
+    lowBattHour = (latestTime.hourStr).toInt();
+    lowBattMin = (latestTime.minStr).toInt();
+  } else if (battery > 3.6 && !charging) {
     lowBattFace = false;
   }
 
@@ -246,7 +298,7 @@ void Watchy999::checkSteps() {
     oldSteps = 0;
     sensorDayStamp = currentTime.Day;
   }
-  
+
   int stepNumber = sensor.getCounter();
   if (oldSteps < stepNumber) {
     if (animMode == 3 && watchFace != 3 && watchFace != 7 && watchFace != 8 && watchFace != 9) { //check for watch faces that use watchAction to toggle design changes
@@ -258,18 +310,12 @@ void Watchy999::checkSteps() {
 
 void Watchy999::drawWatchFace() {
 
+  watchFaceSettings();
   timeData latestTime = getTimeDate();
-
   checkBattery();
 
-  if (watchFace != 5 && !lowBattFace && !sleep_mode)
+  if (showSteps)
     checkSteps();
-
-  if (watchFace == 1 || watchFace == 3 || watchFace == 4 || watchFace == 6) {
-    showWeather = true;
-  } else {
-    showWeather = false;
-  }
 
   if (animMode == 0 && currentTime.Second == 0 || animMode == 1 && currentTime.Minute % 30 == 0 || animMode == 2 && currentTime.Minute == 0) {
     if (watchFace != 3 && watchFace != 7 && watchFace != 8 && watchFace != 9 && !sleep_mode)
@@ -282,8 +328,6 @@ void Watchy999::drawWatchFace() {
       showCached = false;
     } else {
       showCached = true;
-      //      if(debugger)
-      //        showCached = false;
     }
 
     drawWeather();
@@ -293,32 +337,7 @@ void Watchy999::drawWatchFace() {
     syncNtpTime();
   }
 
-  if (lowBattFace) { //Low Power Face
-    drawLowBattWatchFace();
-  } else if (watchFace == 0) { //DKtime
-    drawDkWatchFace();
-  } else if (watchFace == 1) {//pxl999
-    drawPxlWatchFace();
-  } else if (watchFace == 2) { //Slides999
-    drawSlidesWatchFace();
-  } else if (watchFace == 3) { //Synth999
-    drawSynthWatchFace();
-  } else if (watchFace == 4) { //Crushem
-    drawCeWatchFace();
-  } else if (watchFace == 5) { //lowBatt
-    drawLowBattWatchFace();
-  } else if (watchFace == 6) { //Tetris
-    drawWatchytrisWatchFace();
-  } else if (watchFace == 7) { //G5600 by NiVZ
-    drawG5600WatchFace();
-  } else if (watchFace == 8) { //Slide Time by Pebble
-    drawPebbleTextFace();
-  } else if (watchFace == 9) { //Doom999
-    drawDoomWatchFace();
-  }
-  
-  if (debugger)
-    Serial.println("runOnce: " + String(runOnce));
+  displayWatchFace();
 
   if (runOnce)
     runOnce = false;
@@ -330,8 +349,10 @@ void Watchy999::drawWatchFace() {
     disableWiFi();
 
   if (sleep_mode) {
+    #ifdef ENABLEBORDERS
+      display.epd2.setDarkBorder(true);
+    #endif
     display.fillScreen(GxEPD_BLACK);
-//    display.drawBitmap(0, 0, sleepmode, DISPLAY_WIDTH, DISPLAY_HEIGHT, GxEPD_WHITE);
     display.drawBitmap(113, 56, sleep1, 63, 14, GxEPD_WHITE);
     display.drawBitmap(65, 68, sleep2, 31, 31, GxEPD_WHITE);
     display.drawBitmap(0, 99, sleep3, 143, 101, GxEPD_WHITE);
@@ -339,6 +360,11 @@ void Watchy999::drawWatchFace() {
     display.display(false);
     return;
   }
+
+#ifdef ENABLEBORDERS
+  if(showBorder)
+      display.epd2.setDarkBorder(darkMode);
+#endif
 
   display.display(true);
 

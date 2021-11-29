@@ -70,6 +70,8 @@ class Watchy999 : public WatchyBase{
         void drawPebbleTextFace();
         //Universal
         timeData getTimeDate();
+        void watchFaceSettings();
+        void displayWatchFace();
         void drawWatchFace();
         void checkBattery();
         void drawWeather();

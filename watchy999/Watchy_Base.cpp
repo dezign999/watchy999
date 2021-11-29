@@ -24,6 +24,8 @@ RTC_DATA_ATTR bool weatherFormat = true;
 RTC_DATA_ATTR bool watchAction = false;
 RTC_DATA_ATTR weatherData latestWeather;
 RTC_DATA_ATTR bool showWeather = false;
+RTC_DATA_ATTR bool showBorder = false;
+RTC_DATA_ATTR bool showSteps = false;
 RTC_DATA_ATTR bool isNight = false;
 RTC_DATA_ATTR int prefAP = 999;
 RTC_DATA_ATTR int oldPrefAP = 666;

@@ -27,6 +27,8 @@ extern RTC_DATA_ATTR int16_t weatherConditionCode;
 extern RTC_DATA_ATTR bool weatherFormat;
 extern RTC_DATA_ATTR bool watchAction;
 extern RTC_DATA_ATTR bool showWeather;
+extern RTC_DATA_ATTR bool showBorder;
+extern RTC_DATA_ATTR bool showSteps;
 extern RTC_DATA_ATTR bool isNight;
 extern uint16_t ambientOffset;
 extern RTC_DATA_ATTR String dezign;
@@ -35,7 +37,6 @@ extern RTC_DATA_ATTR int SLEEP_HOUR;
 extern RTC_DATA_ATTR int SLEEP_MINUTE;
 extern RTC_DATA_ATTR int SYNC_HOUR;
 extern RTC_DATA_ATTR int SYNC_MINUTE;
-
 
 // Btn definitions
 //#define IS_DOUBLE_TAP       (wakeupBit & ACC_INT_MASK && guiState == WATCHFACE_STATE)

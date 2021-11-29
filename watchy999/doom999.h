@@ -7,6 +7,9 @@ const unsigned char *doom_gun[4] = {doomgun1, doomgun2, doomgun2, doomgun0};
 
 void Watchy999::drawDoomWatchFace() {
 
+  if(switchFace)
+    darkMode = false;
+
   //BG
   display.fillScreen(GxEPD_WHITE);
   display.drawBitmap(0, 0, doombg1, 50, 59, GxEPD_BLACK);
