@@ -51,7 +51,7 @@ extern RTC_DATA_ATTR int SYNC_MINUTE;
 class WatchyBase : public Watchy {
   public:
     WatchyBase();
-    void resetAlarm();
+    void interruptAlarm(bool enable);
     virtual void init(String datetime = "");
     virtual void handleButtonPress();
     virtual void deepSleep();
