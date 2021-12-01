@@ -4,6 +4,9 @@
 void Watchy999::drawPxlWatchFace() {
 
   display.fillScreen(GxEPD_BLACK);
+  #ifdef ENABLEBORDERS
+      display.epd2.setDarkBorder(true);
+  #endif
 
   //Time
   display.setFont(&TIME_FONT);
@@ -87,5 +90,8 @@ void Watchy999::drawPxlWatchFace() {
 
   display.fillRect(141, 91, 49, 44, GxEPD_BLACK); //Redraw Helper
   display.drawBitmap(143, 93, weatherIcon, 45, 40, GxEPD_WHITE);
+  #ifdef ENABLEBORDERS
+      display.epd2.setDarkBorder(true);
+  #endif
 
 }

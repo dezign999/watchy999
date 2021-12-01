@@ -37,7 +37,7 @@ const char* TEENS_SPLIT[][2] = { {"", ""}, {"eleven", ""}, {"twelve", ""}, {"thi
 
 //Watch Face Settings - Boolean 0 False, 1 True - { Show Weather, Show Border, Show Steps }
 uint8_t dktime[3] { 0, 0, 0 };
-uint8_t pxl999[3] { 1, 1, 0 };
+uint8_t pxl999[3] { 1, 0, 0 };
 uint8_t slides[3] { 0, 1, 1 };
 uint8_t synth[3] { 1, 1, 0 };
 uint8_t crushem[3] { 1, 0, 1 };
@@ -264,7 +264,8 @@ void Watchy999::drawWeather() {
 
 void Watchy999::checkBattery() {
   //Sync NTP when charging, this is very very amateur, but it works and will only sync once per usb connection
-  float battery =  analogReadMilliVolts(ADC_PIN) / 1000.0f * 2.0f;
+//  float battery =  analogReadMilliVolts(ADC_PIN) / 1000.0f * 2.0f;
+float battery = getBatteryVoltage();
   charging = (battery > oldVoltage) ? true : false;
   oldVoltage = (oldVoltage == 0) ? battery : (battery > oldVoltage) ? battery : oldVoltage;
 

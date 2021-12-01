@@ -3,6 +3,7 @@
 #include "config999.h"
 #include "ArduinoNvs.h"
 
+
 RTC_DATA_ATTR bool runOnce = true;
 RTC_DATA_ATTR int twelveMode = 0;
 RTC_DATA_ATTR bool darkMode = false;
@@ -47,7 +48,7 @@ int16_t menuOptions = sizeof(menuItems) / sizeof(menuItems[0]);
 
 WatchyBase::WatchyBase() {}
 
-void WatchyBase::init() {
+void WatchyBase::init(String datetime) {
   if (debugger)
     Serial.begin(115200);
 
@@ -76,27 +77,26 @@ void WatchyBase::init() {
       //set defaults
       //[0]watchFace, [1]twelveMode, [2]animMode, [3]weatherMode, [4]syncNTP, [5]darkMode, [6]weatherFormat, [7]dateMode
       //[8]disableSleepMode, [9]SLEEP_HOUR, [10]SLEEP_MINUTE
-      uint8_t dezignString [13] = {watchFace, twelveMode, animMode, weatherMode, 1, 1, 1, 0, disableSleepMode, SLEEP_HOUR, SLEEP_MINUTE, SYNC_HOUR, SYNC_MINUTE};
+      uint8_t dezignString [13] = { watchFace, twelveMode, animMode, weatherMode, 1, 1, 1, 0, disableSleepMode, SLEEP_HOUR, SLEEP_MINUTE, SYNC_HOUR, SYNC_MINUTE };
       res = NVS.setBlob("dezign", dezignString, sizeof(dezignString)); // store dezign [11] to key "dezign" on NVS
     }
   }
 
+  esp_sleep_wakeup_cause_t wakeup_reason;
   wakeup_reason = esp_sleep_get_wakeup_cause(); //get wake up reason
   Wire.begin(SDA, SCL); //init i2c
+  RTC.init();
 
   switch (wakeup_reason)
   {
     case ESP_SLEEP_WAKEUP_EXT0: //RTC Alarm
-
-      // Handle classical tick
-      RTC.alarm(ALARM_2); //resets the alarm flag in the RTC
-
+        RTC.clearAlarm(); //resets the alarm flag in the RTC
       if (guiState == WATCHFACE_STATE) {
         RTC.read(currentTime);
 
         if (currentTime.Hour == SLEEP_HOUR && currentTime.Minute == SLEEP_MINUTE && !disableSleepMode) {
           sleep_mode = true;
-          RTC.alarmInterrupt(ALARM_2, false);
+          RTC.clearAlarm();
         }
 
         showWatchFace(true); //partial updates on tick
@@ -106,8 +106,7 @@ void WatchyBase::init() {
     case ESP_SLEEP_WAKEUP_EXT1: //button Press + no handling if wakeup
       if (sleep_mode) {
         sleep_mode = false;
-        RTC.alarmInterrupt(ALARM_2, true);
-        RTC.alarm(ALARM_2); //resets the alarm flag in the RTC
+        RTC.clearAlarm();
         runOnce = true;
         RTC.read(currentTime);
         showWatchFace(false); //full update on wakeup from sleep mode
@@ -118,7 +117,7 @@ void WatchyBase::init() {
       break;
 
     default: //reset
-      _rtcConfig();
+      RTC.config(datetime);
       _bmaConfig();
       showWatchFace(true); //full update on reset
       break;
@@ -133,10 +132,6 @@ void WatchyBase::init() {
   }
   deepSleep();
 }
-
-//bool WatchyBase::watchFaceDisabled(){
-//    return sleep_mode;
-//}
 
 void WatchyBase::deepSleep() {
   esp_sleep_enable_ext0_wakeup(RTC_PIN, 0); //enable deep sleep wake on RTC interrupt
@@ -210,7 +205,7 @@ void WatchyBase::handleButtonPress() {
   //Back Button
   else if (wakeupBit & BACK_BTN_MASK) {
     if (guiState == MAIN_MENU_STATE) { //exit to watch face if already in menu
-      RTC.alarm(ALARM_2); //resets the alarm flag in the RTC
+      RTC.clearAlarm();
       RTC.read(currentTime);
       showWatchFace(true);
       menuIndex = 0;
@@ -332,7 +327,7 @@ void WatchyBase::handleButtonPress() {
         vibrate();
         lastTimeout = millis();
         if (guiState == MAIN_MENU_STATE) { //exit to watch face if already in menu
-          RTC.alarm(ALARM_2); //resets the alarm flag in the RTC
+          RTC.clearAlarm();
           RTC.read(currentTime);
           showWatchFace(false);
           break; //leave loop
@@ -383,15 +378,6 @@ void WatchyBase::vibrate(uint8_t times, uint32_t delay_time) {
   }
 
   sensor.enableFeature(BMA423_WAKEUP, true);
-}
-
-void WatchyBase::_rtcConfig() {
-  //https://github.com/JChristensen/DS3232RTC
-  RTC.squareWave(SQWAVE_NONE); //disable square wave output
-  //RTC.set(compileTime()); //set RTC time to compile time
-  RTC.setAlarm(ALM2_EVERY_MINUTE, 0, 0, 0, 0); //alarm wakes up Watchy every minute
-  RTC.alarmInterrupt(ALARM_2, true); //enable alarm interrupt
-  RTC.read(currentTime);
 }
 
 void WatchyBase::_bmaConfig() {
@@ -1037,9 +1023,8 @@ void WatchyBase::sleepModeApp() {
   if (listIndex == 2) {
     sleep_mode = true;
     saveVars();
-    RTC.alarm(ALARM_2); //resets the alarm flag in the RTC
+    RTC.clearAlarm();
     RTC.read(currentTime);
-    RTC.alarmInterrupt(ALARM_2, false);
     showWatchFace(true);
     menuIndex = 0;
   }
@@ -1499,7 +1484,7 @@ void WatchyBase::syncNtpTime() {
       currentTime.Minute = local->tm_min;
       currentTime.Second = local->tm_sec;
       currentTime.Wday = local->tm_wday + 1;
-      RTC.write(currentTime);
+      RTC.set(currentTime);
       RTC.read(currentTime);
 
     }

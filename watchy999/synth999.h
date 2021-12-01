@@ -45,7 +45,8 @@ void Watchy999::drawSynthWatchFace() {
       dotX += 8;
     }
 
-    float battery =  analogReadMilliVolts(ADC_PIN) / 1000.0f * 2.0f;
+//    float battery =  analogReadMilliVolts(ADC_PIN) / 1000.0f * 2.0f;
+    float battery = getBatteryVoltage();
     float batt = (battery - (4.2 - 0.9)) / 0.9;
     if (batt > 0) {
       display.fillRect(18, 154, 165 * batt, 2, (!darkMode) ? GxEPD_BLACK : GxEPD_WHITE);

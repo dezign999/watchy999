@@ -1,6 +1,7 @@
 #ifndef WATCHY999_H
 #define WATCHY999_H
 
+#include <WatchyRTC.h>
 #include "Watchy_Base.h"
 #include "resource999.h"
 
