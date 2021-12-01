@@ -1461,6 +1461,9 @@ void WatchyBase::syncNtpTime() {
     time_t t;
     bool syncFailed = false;
 
+    time_t now = time(nullptr);
+
+
     if (debugger) {
       Serial.println("Offset: " + String(gmtOffset));
       Serial.println("GatewayIP: " + String(gatewayAddress));
@@ -1469,7 +1472,9 @@ void WatchyBase::syncNtpTime() {
     configTime(gmtOffset, 0, ntpServer);
 
     int i = 0;
-    while (!sntp_get_sync_status() == SNTP_SYNC_STATUS_COMPLETED && i < 20) {
+//    while (!sntp_get_sync_status() == SNTP_SYNC_STATUS_COMPLETED && i < 20) {
+      while (now < SECS_YR_2000) { // added to fix sntp_get_sync_status() not defined error
+      now = time(nullptr);
       if (debugger)
         Serial.print(".");
       delay(1000);
