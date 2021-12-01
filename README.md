@@ -33,6 +33,8 @@ It's got my watch faces, do I even need to say more? JK!!! But yeah, I do make s
 
 UPDATE
 
+Premlinary support for the new RTC in the latest batch of Watchys.
+
 I have updated this with GuruSR's Border color library that allows you to change the white border around the display area to a more pleasing black. Please read the intructions.txt file in the libraryFiles folder for more details.
 
 To be continued...
