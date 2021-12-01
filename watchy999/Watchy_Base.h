@@ -4,7 +4,7 @@
 #define WATCHY_BASE_H
 
 #include <Watchy.h>
-#include "WatchyRTC.h"
+//#include "WatchyRTC.h"
 #include <WatchyRTC.h>
 
 #if __has_include("config.h") && __has_include(<stdint.h>)
@@ -51,6 +51,7 @@ extern RTC_DATA_ATTR int SYNC_MINUTE;
 class WatchyBase : public Watchy {
   public:
     WatchyBase();
+    void resetAlarm();
     virtual void init(String datetime = "");
     virtual void handleButtonPress();
     virtual void deepSleep();

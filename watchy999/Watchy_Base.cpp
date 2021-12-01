@@ -48,6 +48,19 @@ int16_t menuOptions = sizeof(menuItems) / sizeof(menuItems[0]);
 
 WatchyBase::WatchyBase() {}
 
+//void WatchyBase::resetAlarm()
+//{
+//    //set status2 AF val to zero to reset alarm
+//    _status2 &= ~RTCC_ALARM_AF;
+//    //set TF to 1 masks it from changing, as per data-sheet
+//    _status2 |= RTCC_TIMER_TF;
+//
+//    Wire.beginTransmission(Rtcc_Addr);
+//    Wire.write((byte)RTCC_STAT2_ADDR);
+//    Wire.write((byte)_status2);
+//    Wire.endTransmission();
+//}
+
 void WatchyBase::init(String datetime) {
   if (debugger)
     Serial.begin(115200);
@@ -96,7 +109,9 @@ void WatchyBase::init(String datetime) {
 
         if (currentTime.Hour == SLEEP_HOUR && currentTime.Minute == SLEEP_MINUTE && !disableSleepMode) {
           sleep_mode = true;
-          RTC.clearAlarm();
+//          RTC.clearAlarm();
+//            RTC.alarmInterrupt(ALARM_2, false);
+            if (RTC.rtcType == PCF8563) RTC.rtc_pcf.resetAlarm(); else RTC.rtc_ds.alarmInterrupt(ALARM_2,false); 
         }
 
         showWatchFace(true); //partial updates on tick
@@ -107,6 +122,8 @@ void WatchyBase::init(String datetime) {
       if (sleep_mode) {
         sleep_mode = false;
         RTC.clearAlarm();
+//        RTC.alarmInterrupt(ALARM_2, true);
+
         runOnce = true;
         RTC.read(currentTime);
         showWatchFace(false); //full update on wakeup from sleep mode
@@ -205,7 +222,9 @@ void WatchyBase::handleButtonPress() {
   //Back Button
   else if (wakeupBit & BACK_BTN_MASK) {
     if (guiState == MAIN_MENU_STATE) { //exit to watch face if already in menu
-      RTC.clearAlarm();
+//      RTC.clearAlarm();
+//      RTC.alarmInterrupt(ALARM_2, false);
+      if (RTC.rtcType == PCF8563) RTC.rtc_pcf.resetAlarm(); else RTC.rtc_ds.alarmInterrupt(ALARM_2,false); 
       RTC.read(currentTime);
       showWatchFace(true);
       menuIndex = 0;
@@ -327,7 +346,10 @@ void WatchyBase::handleButtonPress() {
         vibrate();
         lastTimeout = millis();
         if (guiState == MAIN_MENU_STATE) { //exit to watch face if already in menu
-          RTC.clearAlarm();
+//          RTC.clearAlarm();
+//          RTC.alarmInterrupt(ALARM_2, false);
+
+          if (RTC.rtcType == PCF8563) RTC.rtc_pcf.resetAlarm(); else RTC.rtc_ds.alarmInterrupt(ALARM_2,false); 
           RTC.read(currentTime);
           showWatchFace(false);
           break; //leave loop
@@ -1023,7 +1045,15 @@ void WatchyBase::sleepModeApp() {
   if (listIndex == 2) {
     sleep_mode = true;
     saveVars();
-    RTC.clearAlarm();
+//    RTC.clearAlarm();
+//    if(rtcType == DS3231){
+//        RTC.alarmInterrupt(ALARM_2, false);
+//    }else{
+//        RTC.rtc_pcf.resetAlarm(); 
+//    }
+
+  if (RTC.rtcType == PCF8563) RTC.rtc_pcf.resetAlarm(); else RTC.rtc_ds.alarmInterrupt(ALARM_2,false); 
+    
     RTC.read(currentTime);
     showWatchFace(true);
     menuIndex = 0;
