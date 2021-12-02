@@ -2,6 +2,7 @@
 #include "Watchy_Base.h"
 #include "config999.h"
 #include "ArduinoNvs.h"
+#include "esp_sntp.h"
 
 
 RTC_DATA_ATTR bool runOnce = true;
