@@ -33,10 +33,10 @@ RTC_DATA_ATTR int oldPrefAP = 666;
 RTC_DATA_ATTR bool wifiError = false;
 RTC_DATA_ATTR bool sleep_mode = false;
 RTC_DATA_ATTR bool disableSleepMode = false;
-RTC_DATA_ATTR int SLEEP_HOUR = 0;
-RTC_DATA_ATTR int SLEEP_MINUTE = 0;
-RTC_DATA_ATTR int SYNC_HOUR = 23;
-RTC_DATA_ATTR int SYNC_MINUTE = 59;
+RTC_DATA_ATTR uint8_t SLEEP_HOUR = 0;
+RTC_DATA_ATTR uint8_t SLEEP_MINUTE = 0;
+RTC_DATA_ATTR uint8_t SYNC_HOUR = 23;
+RTC_DATA_ATTR uint8_t SYNC_MINUTE = 59;
 
 int i, n;
 bool res;
@@ -52,8 +52,8 @@ void WatchyBase::interruptAlarm(bool enable) {
   if (enable) {
     RTC.clearAlarm();
   if(RTC.rtcType == DS3231){
-      RTC.rtc_ds.squareWave(SQWAVE_NONE); //disable square wave output
-      RTC.rtc_ds.setAlarm(ALM2_EVERY_MINUTE, 0, 0, 0, 0); //alarm wakes up Watchy every minute
+//      RTC.rtc_ds.squareWave(SQWAVE_NONE); //disable square wave output
+//      RTC.rtc_ds.setAlarm(ALM2_EVERY_MINUTE, 0, 0, 0, 0); //alarm wakes up Watchy every minute
       RTC.rtc_ds.alarmInterrupt(ALARM_2, true); //enable alarm interrupt   
     }else{
       int nextAlarmMinute = RTC.rtc_pcf.getMinute();
@@ -603,7 +603,7 @@ void WatchyBase::watchfaceApp() {
   display.setTextColor(GxEPD_WHITE);
   display.fillScreen(GxEPD_BLACK);
 
-  char *listItems[] = {"DKtime", "pxl", "slides", "synth", "Crush Em", "lowBatt", "Watchytris", "G5600 by NiVZ", "Pebble", "Doom999"};
+  const char* listItems[] = {"DKtime", "pxl", "slides", "synth", "Crush Em", "lowBatt", "Watchytris", "G5600 by NiVZ", "Pebble", "Doom999"};
   byte itemCount = sizeof(listItems) / sizeof(listItems[0]);
 
   uint16_t listIndex = watchFace;
@@ -652,7 +652,7 @@ void WatchyBase::animationApp() {
   display.setTextColor(GxEPD_WHITE);
   display.fillScreen(GxEPD_BLACK);
 
-  char *listItems[] = {"Every Minute", "Every Half Hour", "Every Hour", "On Step Change", "Off"};
+  const char* listItems[] = {"Every Minute", "Every Half Hour", "Every Hour", "On Step Change", "Off"};
   byte itemCount = sizeof(listItems) / sizeof(listItems[0]);
 
   uint16_t listIndex = animMode;
@@ -700,7 +700,7 @@ void WatchyBase::weatherApp() {
   display.setTextColor(GxEPD_WHITE);
   display.fillScreen(GxEPD_BLACK);
 
-  char *listItems[] = {"Every Half Hour", "Every Hour", "Off", "Now"};
+  const char* listItems[] = {"Every Half Hour", "Every Hour", "Off", "Now"};
   byte itemCount = sizeof(listItems) / sizeof(listItems[0]);
 
   uint16_t listIndex = weatherMode;
@@ -793,7 +793,7 @@ void WatchyBase::weatherFormatApp() {
   guiState == APP_STATE;
   display.init(0, false); //_initial_refresh to false to prevent full update on init
 
-  char *listItems[] = {"Celcius", "Farenheit"};
+  const char* listItems[] = {"Celcius", "Farenheit"};
   byte itemCount = sizeof(listItems) / sizeof(listItems[0]);
 
   uint16_t listIndex = weatherFormat;
@@ -841,7 +841,7 @@ void WatchyBase::weatherFormatApp() {
 void WatchyBase::twelveModeApp() {
   guiState == APP_STATE;
   display.init(0, false); //_initial_refresh to false to prevent full update on init
-  char *listItems[] = {"12 Hour", "24 Hour"};
+  const char* listItems[] = {"12 Hour", "24 Hour"};
   byte itemCount = sizeof(listItems) / sizeof(listItems[0]);
 
   uint16_t listIndex = twelveMode;
@@ -889,7 +889,7 @@ void WatchyBase::twelveModeApp() {
 void WatchyBase::sleepModeApp() {
   guiState == APP_STATE;
   display.init(0, false); //_initial_refresh to false to prevent full update on init
-  char *listItems[] = {"Sleep Mode On", "Sleep Mode Off", "Sleep Now", "Set Sleep Time"};
+  const char* listItems[] = {"Sleep Mode On", "Sleep Mode Off", "Sleep Now", "Set Sleep Time"};
   byte itemCount = sizeof(listItems) / sizeof(listItems[0]);
 
   uint16_t listIndex = disableSleepMode;
@@ -1061,7 +1061,7 @@ void WatchyBase::sleepModeApp() {
 void WatchyBase::dateModeApp() {
   guiState == APP_STATE;
   display.init(0, false); //_initial_refresh to false to prevent full update on init
-  char *listItems[] = {"MM/DD", "DD/MM"};
+  const char* listItems[] = {"MM/DD", "DD/MM"};
   byte itemCount = sizeof(listItems) / sizeof(listItems[0]);
 
   uint16_t listIndex = dateMode;
@@ -1109,7 +1109,7 @@ void WatchyBase::dateModeApp() {
 void WatchyBase::ntpApp() {
   guiState == APP_STATE;
   display.init(0, false); //_initial_refresh to false to prevent full update on init
-  char *listItems[] = {"When Charging", "Once a Day", "Off", "Now (Press Menu)", "Set Sync Time"};
+  const char* listItems[] = {"When Charging", "Once a Day", "Off", "Now (Press Menu)", "Set Sync Time"};
   byte itemCount = sizeof(listItems) / sizeof(listItems[0]);
 
   //  uint16_t listIndex = syncIndex;
@@ -1289,7 +1289,7 @@ void WatchyBase::ntpApp() {
 void WatchyBase::wifiModeApp() {
   guiState == APP_STATE;
   display.init(0, false); //_initial_refresh to false to prevent full update on init
-  char *listItems[] = {"Multi APs", "Default WiFi"};
+  const char* listItems[] = {"Multi APs", "Default WiFi"};
   byte itemCount = sizeof(listItems) / sizeof(listItems[0]);
 
   uint16_t listIndex = wifiMode;
@@ -1349,7 +1349,7 @@ void WatchyBase::wifiModeApp() {
   showMenu(menuIndex, false);
 }
 
-void WatchyBase::showList(char *listItems[], byte itemCount, byte listIndex, bool selected, bool partialRefresh) {
+void WatchyBase::showList(const char* listItems[], byte itemCount, byte listIndex, bool selected, bool partialRefresh) {
   display.init(0, false); //_initial_refresh to false to prevent full update on init
   display.setFullWindow();
   display.fillScreen(GxEPD_BLACK);
@@ -1426,6 +1426,9 @@ void WatchyBase::syncNtpTime() {
 
   if (WiFi.status() == WL_CONNECTED) {
 
+    time_t t;
+    bool syncFailed = false;
+
     int gatewayAddress = WiFi.gatewayIP();
 
     if (gmtOffset == 0) { //Get Time Offset
@@ -1445,6 +1448,7 @@ void WatchyBase::syncNtpTime() {
           if (manualSync) {
             display.setCursor(20, 160);
             display.println("Offset Failed");
+            syncFailed = true;
           }
         } else {
           gmtOffset = int(responseObject["offset"]); //Good practice edit by @ekalfwonS
@@ -1454,14 +1458,14 @@ void WatchyBase::syncNtpTime() {
         if (manualSync) {
           display.setCursor(20, 160);
           display.println("Offset Failed");
+          syncFailed = true;
         }
       }
     }
 
-    time_t t;
-    bool syncFailed = false;
+    
 
-    time_t now = time(nullptr);
+//    time_t now = time(nullptr);
 
 
     if (debugger) {
@@ -1469,24 +1473,29 @@ void WatchyBase::syncNtpTime() {
       Serial.println("GatewayIP: " + String(gatewayAddress));
     }  
 
+  if (!syncFailed) {
     configTime(gmtOffset, 0, ntpServer);
 
     int i = 0;
-//    while (!sntp_get_sync_status() == SNTP_SYNC_STATUS_COMPLETED && i < 20) {
-      while (now < SECS_YR_2000) { // added to fix sntp_get_sync_status() not defined error
-      now = time(nullptr);
+      while (!sntp_get_sync_status() == SNTP_SYNC_STATUS_COMPLETED && i < 20) {
+//      while (now < SECS_YR_2000 && i < 20) { // possible fix
+//      now = time(nullptr);
       if (debugger)
         Serial.print(".");
       delay(1000);
       i++;
+      if(debugger)
+        Serial.println("i = " + String(i));
       if (i == 10) {
         if (manualSync) {
           display.setCursor(20, 160);
           display.println("Failed to sync");
         }
         syncFailed = true;
+        break;
       }
     }
+  }
 
     if (!syncFailed) {
       time_t tnow = time(nullptr);

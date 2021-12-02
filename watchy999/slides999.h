@@ -1,5 +1,5 @@
 
-#define TIME_FONT PebblecoNumbers_MONO32pt7b
+#define SLIDES_TIME_FONT PebblecoNumbers_MONO32pt7b
 
 RTC_DATA_ATTR char  step1, step2, step3, step4;
 RTC_DATA_ATTR char  stepC1 = '0';
@@ -97,7 +97,7 @@ void Watchy999::drawSlidesTime() {
   min1 = latestTime.min1;
   min2 = latestTime.min2;
 
-  display.setFont(&TIME_FONT);
+  display.setFont(&SLIDES_TIME_FONT);
 
   display.setTextColor((darkMode) ? GxEPD_BLACK : GxEPD_WHITE);
 
@@ -126,7 +126,7 @@ void Watchy999::drawSlidesDate() {
   date1 = ((dateMode) ? latestTime.month1 : latestTime.date1);
   date2 = ((dateMode) ? latestTime.month2 : latestTime.date2);
 
-  display.setFont(&TIME_FONT);
+  display.setFont(&SLIDES_TIME_FONT);
 
   display.setTextColor((darkMode) ? GxEPD_WHITE : GxEPD_BLACK);
 
@@ -148,7 +148,7 @@ void Watchy999::drawSlidesSteps() {
 
   getSlidesSteps();
 
-  display.setFont(&TIME_FONT);
+  display.setFont(&SLIDES_TIME_FONT);
 
   display.fillRect(0, 135, 200, 60, (!darkMode) ? GxEPD_WHITE : GxEPD_BLACK);
 
@@ -165,7 +165,7 @@ void Watchy999::drawSlidesSteps() {
 
 void Watchy999::drawSlidesAnim() {
 
-  display.setFont(&TIME_FONT);
+  display.setFont(&SLIDES_TIME_FONT);
 
   for (uint8_t i = 0; i < 9; i++) {
 

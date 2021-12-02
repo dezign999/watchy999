@@ -189,11 +189,11 @@ timeData Watchy999::getTimeDate() {
   date1 = (currentTime.Day / 10 != 0) ? String(currentTime.Day / 10).charAt(0) : '0';
   date2 = String(currentTime.Day % 10).charAt(0);
 
-  char *dayNames[7] = { "SUN" , "MON" , "TUE" , "WED" , "THU" , "FRI" , "SAT" };
-  char *monthNames[12] = { "JAN" , "FEB" , "MAR" , "APR" , "MAY" , "JUN" , "JUL" , "AUG" , "SEP" , "OCT" , "NOV" , "DEC" };
+  const char* dayNames[7] = { "SUN" , "MON" , "TUE" , "WED" , "THU" , "FRI" , "SAT" };
+  const char* monthNames[12] = { "JAN" , "FEB" , "MAR" , "APR" , "MAY" , "JUN" , "JUL" , "AUG" , "SEP" , "OCT" , "NOV" , "DEC" };
 
-  char *dayAbbrev = dayNames[currentTime.Wday - 1];
-  char *monthAbbrev = monthNames[currentTime.Month - 1];
+  const char* dayAbbrev = dayNames[currentTime.Wday - 1];
+  const char * monthAbbrev = monthNames[currentTime.Month - 1];
 
   isNight = (currentTime.Hour >= 18 || currentTime.Hour <= 5) ? true : false;
 
@@ -209,8 +209,8 @@ timeData Watchy999::getTimeDate() {
   latestTime.month2 = month2;
   latestTime.date1 = date1;
   latestTime.date2 = date2;
-  latestTime.dayAbbrev = dayAbbrev;
-  latestTime.monthAbbrev = monthAbbrev;
+  latestTime.dayAbbrev = const_cast<char*>(dayAbbrev);
+  latestTime.monthAbbrev = const_cast<char*>(monthAbbrev);
   latestTime.longYearStr = longYearStr;
   latestTime.shortYearStr = shortYearStr;
 
@@ -359,6 +359,7 @@ void Watchy999::drawWatchFace() {
     display.drawBitmap(0, 99, sleep3, 143, 101, GxEPD_WHITE);
     display.drawBitmap(143, 138, sleep4, 57, 62, GxEPD_WHITE);
     display.display(false);
+    deepSleep();
     return;
   }
 

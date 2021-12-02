@@ -1,6 +1,6 @@
 #define TIME_FONT absinth44pt7b
-#define DATE_FONT synthDate14pt7b
-#define SMALL_TEXT tinyPixel10pt7b
+#define SYNTH_DATE_FONT synthDate14pt7b
+#define SYNTH_SMALL_TEXT tinyPixel10pt7b
 const unsigned char *abSM [10] = {ab0, ab1, ab2, ab3, ab4, ab5, ab6, ab7, ab8, ab9};
 
 void Watchy999::drawSynthWatchFace() {
@@ -29,10 +29,10 @@ void Watchy999::drawSynthWatchFace() {
     //Date
     display.fillRect(142, 88, 45, 55, (darkMode) ? GxEPD_BLACK : GxEPD_WHITE); //Redraw Helper
     display.setTextColor((darkMode) ? GxEPD_WHITE : GxEPD_BLACK);
-    display.setFont(&DATE_FONT);
+    display.setFont(&SYNTH_DATE_FONT);
     display.setCursor(144, (dateMode) ? 101 : 120);
     display.print(latestTime.dateStr);
-    display.setFont(&SMALL_TEXT);
+    display.setFont(&SYNTH_SMALL_TEXT);
     display.setCursor(144, (dateMode) ? 119 : 98);
     display.print(latestTime.monthAbbrev);
     display.setCursor(144, 137);
@@ -55,7 +55,7 @@ void Watchy999::drawSynthWatchFace() {
     //Temp
     display.fillRect(12, 167, 188, 21, (darkMode) ? GxEPD_BLACK : GxEPD_WHITE); //Redraw Helper
     display.setTextColor((darkMode) ? GxEPD_WHITE : GxEPD_BLACK);
-    display.setFont(&SMALL_TEXT);
+    display.setFont(&SYNTH_SMALL_TEXT);
     display.setCursor(18, 182);
     display.println(String(temperature) + "' " + tempCondition);
   }

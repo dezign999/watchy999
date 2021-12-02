@@ -4,7 +4,6 @@
 #define WATCHY_BASE_H
 
 #include <Watchy.h>
-//#include "WatchyRTC.h"
 #include <WatchyRTC.h>
 
 #if __has_include("config.h") && __has_include(<stdint.h>)
@@ -36,10 +35,10 @@ extern RTC_DATA_ATTR bool isNight;
 extern uint16_t ambientOffset;
 extern RTC_DATA_ATTR String dezign;
 extern RTC_DATA_ATTR bool sleep_mode;
-extern RTC_DATA_ATTR int SLEEP_HOUR;
-extern RTC_DATA_ATTR int SLEEP_MINUTE;
-extern RTC_DATA_ATTR int SYNC_HOUR;
-extern RTC_DATA_ATTR int SYNC_MINUTE;
+extern RTC_DATA_ATTR uint8_t SLEEP_HOUR;
+extern RTC_DATA_ATTR uint8_t SLEEP_MINUTE;
+extern RTC_DATA_ATTR uint8_t SYNC_HOUR;
+extern RTC_DATA_ATTR uint8_t SYNC_MINUTE;
 
 // Btn definitions
 //#define IS_DOUBLE_TAP       (wakeupBit & ACC_INT_MASK && guiState == WATCHFACE_STATE)
@@ -78,7 +77,7 @@ class WatchyBase : public Watchy {
     String getCityName();
     String getCityAbbv();
     int rtcTemp();
-    void showList(char *listItems[], byte itemCount, byte listIndex, bool selected, bool partialRefresh);
+    void showList(const char* listItems[], byte itemCount, byte listIndex, bool selected, bool partialRefresh);
     void showMenu(byte menuIndex, bool partialRefresh);
     virtual void showFastMenu(byte menuIndex);
 
