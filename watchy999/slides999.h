@@ -115,11 +115,11 @@ void Watchy999::drawSlidesTime() {
 }
 
 void Watchy999::drawSlidesDate() {
-  
-//  month1 = latestTime.month1;
-//  month2 = latestTime.month2;
-//  date1 = latestTime.date1;
-//  date2 = latestTime.date2;
+
+  //  month1 = latestTime.month1;
+  //  month2 = latestTime.month2;
+  //  date1 = latestTime.date1;
+  //  date2 = latestTime.date2;
 
   month1 = ((dateMode) ? latestTime.date1 : latestTime.month1);
   month2 = ((dateMode) ? latestTime.date2 : latestTime.month2);
@@ -218,7 +218,7 @@ void Watchy999::drawSlidesAnim() {
       display.setCursor(149, 185);
       display.print(stepC4);
 
-//      display.display(true);
+      //      display.display(true);
 
     } else if (i == 1) {
 
@@ -269,14 +269,14 @@ void Watchy999::drawSlidesAnim() {
       display.setCursor(149, 185);
       display.print(stepC4);
 
-//      display.display(true);
+      //      display.display(true);
 
     } else if (i == 2) {
 
-//      month1 = latestTime.month1;
-//      month2 = latestTime.month2;
-//      date1 = latestTime.date1;
-//      date2 = latestTime.date2;
+      //      month1 = latestTime.month1;
+      //      month2 = latestTime.month2;
+      //      date1 = latestTime.date1;
+      //      date2 = latestTime.date2;
 
       month1 = ((dateMode) ? latestTime.date1 : latestTime.month1);
       month2 = ((dateMode) ? latestTime.date2 : latestTime.month2);
@@ -330,6 +330,9 @@ void Watchy999::drawSlidesAnim() {
       display.setCursor(149, 185);
       display.print(stepC4);
 
+#ifdef ENABLEBORDERS
+      display.epd2.setDarkBorder(true);
+#endif
       display.display(true);
 
     } else if (i == 3) {
@@ -388,6 +391,9 @@ void Watchy999::drawSlidesAnim() {
       display.setCursor(149, 185);
       display.print(stepC4);
 
+#ifdef ENABLEBORDERS
+      display.epd2.setDarkBorder(true);
+#endif
       display.display(true);
 
     } else if (i == 4) {
@@ -439,6 +445,9 @@ void Watchy999::drawSlidesAnim() {
       display.setCursor(149, 185);
       display.print(stepC4);
 
+#ifdef ENABLEBORDERS
+      display.epd2.setDarkBorder(true);
+#endif
       display.display(true);
 
     } else if (i == 5) {
@@ -490,6 +499,9 @@ void Watchy999::drawSlidesAnim() {
       display.setCursor(149, 185);
       display.print(minC2); //Column 4 start
 
+#ifdef ENABLEBORDERS
+      display.epd2.setDarkBorder(true);
+#endif
       display.display(true);
 
     } else if (i == 6) {
@@ -541,6 +553,9 @@ void Watchy999::drawSlidesAnim() {
       display.setCursor(149, 185);
       display.print(dateC2); //Column 4 start
 
+#ifdef ENABLEBORDERS
+      display.epd2.setDarkBorder(true);
+#endif
       display.display(true);
 
     } else if (i == 7) {
@@ -592,6 +607,9 @@ void Watchy999::drawSlidesAnim() {
       display.setCursor(149, 185);
       display.print(rNum7);
 
+#ifdef ENABLEBORDERS
+      display.epd2.setDarkBorder(true);
+#endif
       display.display(true);
 
     } else if (i == 8) {
@@ -643,6 +661,9 @@ void Watchy999::drawSlidesAnim() {
       display.setCursor(149, 185);
       display.print(rNum8);
 
+#ifdef ENABLEBORDERS
+      display.epd2.setDarkBorder(true);
+#endif
       display.display(true);
 
     } else if (i == 9) {
@@ -694,6 +715,9 @@ void Watchy999::drawSlidesAnim() {
       display.setCursor(149, 185);
       display.print(step4);
 
+#ifdef ENABLEBORDERS
+      display.epd2.setDarkBorder(true);
+#endif
       display.display(true);
 
     }

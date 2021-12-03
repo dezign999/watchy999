@@ -11,14 +11,14 @@
 #endif
 
 extern RTC_DATA_ATTR bool runOnce;
-extern RTC_DATA_ATTR int twelveMode;
-extern RTC_DATA_ATTR bool darkMode;
+extern RTC_DATA_ATTR uint8_t twelveMode;
+extern RTC_DATA_ATTR uint8_t darkMode;
 extern RTC_DATA_ATTR bool debugger;
-extern RTC_DATA_ATTR int animMode;
-extern RTC_DATA_ATTR int weatherMode;
-extern RTC_DATA_ATTR int dateMode;
-extern RTC_DATA_ATTR int syncNTP;
-extern RTC_DATA_ATTR int watchFace;
+extern RTC_DATA_ATTR uint8_t animMode;
+extern RTC_DATA_ATTR uint8_t weatherMode;
+extern RTC_DATA_ATTR uint8_t dateMode;
+extern RTC_DATA_ATTR uint8_t syncNTP;
+extern RTC_DATA_ATTR uint8_t watchFace;
 extern RTC_DATA_ATTR bool switchFace;
 extern RTC_DATA_ATTR weatherData latestWeather;
 extern RTC_DATA_ATTR char city;
@@ -26,7 +26,7 @@ extern RTC_DATA_ATTR String cityName;
 extern RTC_DATA_ATTR int cityNameID;
 extern RTC_DATA_ATTR int8_t temperature;
 extern RTC_DATA_ATTR int16_t weatherConditionCode;
-extern RTC_DATA_ATTR bool weatherFormat;
+extern RTC_DATA_ATTR uint8_t weatherFormat;
 extern RTC_DATA_ATTR bool watchAction;
 extern RTC_DATA_ATTR bool showWeather;
 extern RTC_DATA_ATTR bool showBorder;

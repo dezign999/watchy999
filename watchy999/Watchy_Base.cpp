@@ -6,23 +6,23 @@
 
 
 RTC_DATA_ATTR bool runOnce = true;
-RTC_DATA_ATTR int twelveMode = 0;
-RTC_DATA_ATTR bool darkMode = false;
-RTC_DATA_ATTR int syncNTP = 0;
-RTC_DATA_ATTR int animMode = 3;
-RTC_DATA_ATTR int dateMode = 0;
+RTC_DATA_ATTR uint8_t twelveMode = 0;
+RTC_DATA_ATTR uint8_t darkMode = 0;
+RTC_DATA_ATTR uint8_t syncNTP = 0;
+RTC_DATA_ATTR uint8_t animMode = 3;
+RTC_DATA_ATTR uint8_t dateMode = 0;
 RTC_DATA_ATTR int wifiMode = 0;
-RTC_DATA_ATTR int weatherMode = 0;
+RTC_DATA_ATTR uint8_t weatherMode = 0;
 RTC_DATA_ATTR int selectedItem;
 RTC_DATA_ATTR int syncIndex = 0;
-RTC_DATA_ATTR int watchFace = 0; //0 = Donkey Kong, 1 = pxl999, 2 = slides999, 3 = synth999, 4 = Crush Em999, 5 = lowBatt999, 5 = Tetris, 6 = G5600
+RTC_DATA_ATTR uint8_t watchFace = 0; //0 = Donkey Kong, 1 = pxl999, 2 = slides999, 3 = synth999, 4 = Crush Em999, 5 = lowBatt999, 5 = Tetris, 6 = G5600
 RTC_DATA_ATTR bool switchFace = true; // Enable redraw when switching faces;
 RTC_DATA_ATTR int cityNameID;
 RTC_DATA_ATTR String cityName;
 RTC_DATA_ATTR String dezign;
 RTC_DATA_ATTR int8_t temperature;
 RTC_DATA_ATTR int16_t weatherConditionCode = 999;
-RTC_DATA_ATTR bool weatherFormat = true;
+RTC_DATA_ATTR uint8_t weatherFormat = 1;
 RTC_DATA_ATTR bool watchAction = false;
 RTC_DATA_ATTR weatherData latestWeather;
 RTC_DATA_ATTR bool showWeather = false;
@@ -33,7 +33,7 @@ RTC_DATA_ATTR int prefAP = 999;
 RTC_DATA_ATTR int oldPrefAP = 666;
 RTC_DATA_ATTR bool wifiError = false;
 RTC_DATA_ATTR bool sleep_mode = false;
-RTC_DATA_ATTR bool disableSleepMode = false;
+RTC_DATA_ATTR uint8_t disableSleepMode = 0;
 RTC_DATA_ATTR uint8_t SLEEP_HOUR = 0;
 RTC_DATA_ATTR uint8_t SLEEP_MINUTE = 0;
 RTC_DATA_ATTR uint8_t SYNC_HOUR = 23;
@@ -165,8 +165,8 @@ void WatchyBase::deepSleep() {
 void WatchyBase::saveVars() {
   //[0]watchFace, [1]twelveMode, [2]animMode, [3]weatherMode, [4]syncNTP, [5]darkMode, [6]weatherFormat, [7]dateMode
   //[8]disableSleepMode, [9]SLEEP_HOUR, [10]SLEEP_MINUTE, [11]SYNC_HOUR, [12]SYNC_MINUTE
-  uint8_t dezignString [13] = {watchFace, twelveMode, animMode, weatherMode, (syncNTP) ? 1 : 0, (darkMode) ? 1 : 0, (weatherFormat) ? 1 : 0, (dateMode) ? 1 : 0,
-                               (disableSleepMode) ? 1 : 0, SLEEP_HOUR, SLEEP_MINUTE, SYNC_HOUR, SYNC_MINUTE
+  uint8_t dezignString [13] = {watchFace, twelveMode, animMode, weatherMode, syncNTP, darkMode, weatherFormat, dateMode,
+                               disableSleepMode, SLEEP_HOUR, SLEEP_MINUTE, SYNC_HOUR, SYNC_MINUTE
                               };
   res = NVS.setBlob("dezign", dezignString, sizeof(dezignString)); // store dezign [13] to key "dezign" on NVS
 }
@@ -1487,7 +1487,7 @@ void WatchyBase::syncNtpTime() {
       i++;
       if(debugger)
         Serial.println("i = " + String(i));
-      if (i == 10) {
+      if (i == 20) {
         if (manualSync) {
           display.setCursor(20, 160);
           display.println("Failed to sync");
@@ -1633,6 +1633,7 @@ bool WatchyBase::noAlpha(String str) { //Check if the city name is an ID code or
       return false;
     }
   }
+  return 0;
 }
 
 int WatchyBase::rtcTemp() {
