@@ -1537,12 +1537,11 @@ void WatchyBase::syncNtpTime() {
   }
 
   disableWiFi();
-  if (manualSync) {
-    display.display(true);
+  display.display(true);
+  if (manualSync)
     delay(3000);
-  }
+    
   manualSync = false;
-
 }
 
 void WatchyBase::disableWiFi() {
@@ -1637,7 +1636,8 @@ bool WatchyBase::noAlpha(String str) { //Check if the city name is an ID code or
 }
 
 int WatchyBase::rtcTemp() {
-  temperature = (RTC.temperature() / 4) - ambientOffset; //celsius
+//  temperature = (RTC.temperature() / 4) - ambientOffset; //celsius
+    temperature = sensor.readTemperature() - ambientOffset; //celsius
   if (debugger)
     Serial.println("rtcTemp(): " + String(temperature));
   return temperature;
