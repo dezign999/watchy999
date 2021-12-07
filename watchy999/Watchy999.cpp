@@ -33,7 +33,8 @@ RTC_DATA_ATTR bool lowBattFace = false;
 const char *ONES[] = {"", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve",  "thirteen"};
 const char *TENS[] = {"o'", nullptr, "twenty", "thirty", "forty", "fifty"};
 const char* TEENS_SPLIT[][2] = { {"", ""}, {"eleven", ""}, {"twelve", ""}, {"thirteen", ""}, {"four", "teen"}, {"fifteen", ""},
-                                 {"sixteen", ""}, {"seven", "teen"}, {"eight", "teen"}, {"nine", "teen"} };
+  {"sixteen", ""}, {"seven", "teen"}, {"eight", "teen"}, {"nine", "teen"}
+};
 
 //Watch Face Settings - Boolean 0 False, 1 True - { Show Weather, Show Border, Show Steps }
 uint8_t dktime[3] { 0, 0, 0 };
@@ -55,8 +56,10 @@ void Watchy999::watchFaceSettings() {
 }
 
 void Watchy999::displayWatchFace() {
-    if (lowBattFace) { //Low Power Face
+  if (lowBattFace) { //Low Power Face
     drawLowBattWatchFace();
+  } else if (sleep_mode) {
+    gotoSleep();
   } else {
     switch (watchFace) {
       case 0:
@@ -264,8 +267,8 @@ void Watchy999::drawWeather() {
 
 void Watchy999::checkBattery() {
   //Sync NTP when charging, this is very very amateur, but it works and will only sync once per usb connection
-//  float battery =  analogReadMilliVolts(ADC_PIN) / 1000.0f * 2.0f;
-float battery = getBatteryVoltage();
+  //  float battery =  analogReadMilliVolts(ADC_PIN) / 1000.0f * 2.0f;
+  float battery = getBatteryVoltage();
   charging = (battery > oldVoltage) ? true : false;
   oldVoltage = (oldVoltage == 0) ? battery : (battery > oldVoltage) ? battery : oldVoltage;
 
@@ -309,6 +312,19 @@ void Watchy999::checkSteps() {
   }
 }
 
+void Watchy999::gotoSleep() {
+#ifdef ENABLEBORDERS
+  display.epd2.setDarkBorder(true);
+#endif
+  display.fillScreen(GxEPD_BLACK);
+  display.drawBitmap(113, 56, sleep1, 63, 14, GxEPD_WHITE);
+  display.drawBitmap(65, 68, sleep2, 31, 31, GxEPD_WHITE);
+  display.drawBitmap(0, 99, sleep3, 143, 101, GxEPD_WHITE);
+  display.drawBitmap(143, 138, sleep4, 57, 62, GxEPD_WHITE);
+  display.display(false);
+  display.hibernate();
+  deepSleep();
+}
 void Watchy999::drawWatchFace() {
 
   watchFaceSettings();
@@ -349,23 +365,9 @@ void Watchy999::drawWatchFace() {
   if (WiFi.status() == WL_CONNECTED)
     disableWiFi();
 
-  if (sleep_mode) {
-    #ifdef ENABLEBORDERS
-      display.epd2.setDarkBorder(true);
-    #endif
-    display.fillScreen(GxEPD_BLACK);
-    display.drawBitmap(113, 56, sleep1, 63, 14, GxEPD_WHITE);
-    display.drawBitmap(65, 68, sleep2, 31, 31, GxEPD_WHITE);
-    display.drawBitmap(0, 99, sleep3, 143, 101, GxEPD_WHITE);
-    display.drawBitmap(143, 138, sleep4, 57, 62, GxEPD_WHITE);
-    display.display(false);
-    deepSleep();
-    return;
-  }
-
 #ifdef ENABLEBORDERS
-  if(showBorder)
-      display.epd2.setDarkBorder(darkMode);
+  if (showBorder || lowBattFace)
+    display.epd2.setDarkBorder(darkMode);
 #endif
 
   display.display(true);

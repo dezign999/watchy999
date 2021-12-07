@@ -77,6 +77,7 @@ class Watchy999 : public WatchyBase{
         void checkBattery();
         void drawWeather();
         void checkSteps();
+        void gotoSleep();
         void centerJustify(const String txt, uint16_t xPos, uint16_t yPos);
         void drawLecoNum(int pDigit, int pX, int pY, bool colorChange);
         void drawPxlNum(int pDigit, int pX, int pY, bool colorChange);
