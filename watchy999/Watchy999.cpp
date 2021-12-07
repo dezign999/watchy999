@@ -322,8 +322,10 @@ void Watchy999::gotoSleep() {
   display.drawBitmap(0, 99, sleep3, 143, 101, GxEPD_WHITE);
   display.drawBitmap(143, 138, sleep4, 57, 62, GxEPD_WHITE);
   display.display(false);
+  interruptAlarm(false);
   display.hibernate();
-  deepSleep();
+  esp_sleep_enable_ext1_wakeup(EXT_INT_MASK, ESP_EXT1_WAKEUP_ANY_HIGH); //enable deep sleep wake on button press
+  esp_deep_sleep_start();
 }
 void Watchy999::drawWatchFace() {
 

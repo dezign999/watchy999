@@ -54,7 +54,6 @@ class WatchyBase : public Watchy {
     virtual void init(String datetime = "");
     virtual void handleButtonPress();
     virtual void deepSleep();
-//    bool watchFaceDisabled();
     void vibrate(uint8_t times = 1, uint32_t delay_time = 50);
     esp_sleep_wakeup_cause_t wakeup_reason;
     void saveVars();
