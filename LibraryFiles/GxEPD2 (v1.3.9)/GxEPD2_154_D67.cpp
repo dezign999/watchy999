@@ -20,7 +20,7 @@ GxEPD2_154_D67::GxEPD2_154_D67(int16_t cs, int16_t dc, int16_t rst, int16_t busy
 
 bool IsDark;                                    // GuruSR:  Changed for setDarkBorder
 void GxEPD2_154_D67::setDarkBorder(bool Dark){  // GuruSR:  Changed for setDarkBorder
-	IsDark=Dark;                                  // GuruSR:  Changed for setDarkBorder
+	IsDark=Dark;                                // GuruSR:  Changed for setDarkBorder
 }                                               // GuruSR:  Changed for setDarkBorder
 
 void GxEPD2_154_D67::clearScreen(uint8_t value)
