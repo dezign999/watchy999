@@ -38,9 +38,11 @@ RTC_DATA_ATTR uint8_t SLEEP_HOUR = 0;
 RTC_DATA_ATTR uint8_t SLEEP_MINUTE = 0;
 RTC_DATA_ATTR uint8_t SYNC_HOUR = 23;
 RTC_DATA_ATTR uint8_t SYNC_MINUTE = 59;
+RTC_DATA_ATTR bool displayFullInit_ = true;
 
 int i, n;
 bool res;
+bool saveChanges = false;
 bool manualSync = false;
 const char *offsetStatus = "success";
 
@@ -108,6 +110,12 @@ void WatchyBase::init(String datetime) {
   Wire.begin(SDA, SCL); //init i2c
   RTC.init();
 
+  // Init the display here for all cases, if unused, it will do nothing
+    display.init(0, displayFullInit_, 10, true); // 10ms by spec, and fast pulldown reset
+    display.epd2.setBusyCallback(displayBusyCallback);
+    if(runOnce)
+      display.display(false);
+
   switch (wakeup_reason)
   {
     case ESP_SLEEP_WAKEUP_EXT0: //RTC Alarm
@@ -156,10 +164,17 @@ void WatchyBase::init(String datetime) {
   deepSleep();
 }
 
-void WatchyBase::deepSleep() {
-  esp_sleep_enable_ext0_wakeup(RTC_PIN, 0); //enable deep sleep wake on RTC interrupt
-  esp_sleep_enable_ext1_wakeup(EXT_INT_MASK, ESP_EXT1_WAKEUP_ANY_HIGH); //enable deep sleep wake on button press
-  esp_deep_sleep_start();
+void WatchyBase::deepSleep(){
+    display.hibernate();
+    displayFullInit_ = false; // Notify not to init it again    
+    RTC.clearAlarm(); //resets the alarm flag in the RTC
+     // Set pins 0-39 to input to avoid power leaking out
+    for(int i=0; i<40; i++) {
+        pinMode(i, INPUT);
+    }    
+    esp_sleep_enable_ext0_wakeup(RTC_PIN, 0); //enable deep sleep wake on RTC interrupt
+    esp_sleep_enable_ext1_wakeup(BTN_PIN_MASK, ESP_EXT1_WAKEUP_ANY_HIGH); //enable deep sleep wake on button press
+    esp_deep_sleep_start();
 }
 
 void WatchyBase::saveVars() {
@@ -272,7 +287,7 @@ void WatchyBase::handleButtonPress() {
     vibrate();
     darkMode = (!darkMode) ? true : false;
     if(watchFace != 0 && watchFace != 1 && watchFace != 6 && watchFace != 9)
-    saveVars();
+//    saveVars();
     showWatchFace(true);
     return;
   }
@@ -604,7 +619,7 @@ void WatchyBase::watchfaceApp() {
   display.setTextColor(GxEPD_WHITE);
   display.fillScreen(GxEPD_BLACK);
 
-  const char* listItems[] = {"DKtime", "pxl", "slides", "synth", "Crush Em", "lowBatt", "Watchytris", "G5600 by NiVZ", "Pebble", "Doom999"};
+  const char* listItems[] = {"DKtime", "pxl", "slides", "synth", "Crush Em", "lowBatt", "Watchytris", "G5600 by NiVZ", "Pebble", "Doom999", "Qlockchy"};
   byte itemCount = sizeof(listItems) / sizeof(listItems[0]);
 
   uint16_t listIndex = watchFace;
@@ -615,14 +630,19 @@ void WatchyBase::watchfaceApp() {
   while (1) {
 
     if (digitalRead(BACK_BTN_PIN) == 1) {
-      saveVars();
+      if(saveChanges)
+        saveVars();
+      saveChanges = false;
       vibrate();
       break;
     }
 
     if (digitalRead(MENU_BTN_PIN) == 1) {
       vibrate();
-      watchFace = listIndex;
+      if(listIndex != watchFace) {
+        watchFace = listIndex;
+        saveChanges = true;
+      }
       switchFace = true;
       showList(listItems, itemCount, listIndex, true, true);
     }
@@ -664,14 +684,19 @@ void WatchyBase::animationApp() {
   while (1) {
 
     if (digitalRead(BACK_BTN_PIN) == 1) {
-      saveVars();
       vibrate();
+      if(saveChanges)
+        saveVars();
+      saveChanges = false;
       break;
     }
 
     if (digitalRead(MENU_BTN_PIN) == 1) {
       vibrate();
-      animMode = listIndex;
+      if(listIndex != animMode) {
+        animMode = listIndex;
+        saveChanges = true;
+      }
       showList(listItems, itemCount, listIndex, true, true);
     }
 
@@ -712,8 +737,10 @@ void WatchyBase::weatherApp() {
   while (1) {
 
     if (digitalRead(BACK_BTN_PIN) == 1) {
-      saveVars();
       vibrate();
+      if(saveChanges)
+        saveVars();
+      saveChanges = false;
       break;
     }
 
@@ -721,7 +748,10 @@ void WatchyBase::weatherApp() {
       vibrate();
       if (listIndex != 3) {
         switchFace = true;
+        if(listIndex != weatherMode) {
         weatherMode = listIndex;
+        saveChanges = true;
+      }
         showList(listItems, itemCount, listIndex, true, true);
       } else if (listIndex == 3) {
 
@@ -805,13 +835,18 @@ void WatchyBase::weatherFormatApp() {
   while (1) {
 
     if (digitalRead(BACK_BTN_PIN) == 1) {
-      saveVars();
       vibrate();
+      if(saveChanges)
+        saveVars();
+      saveChanges = false;
       break;
     }
 
     if (digitalRead(MENU_BTN_PIN) == 1) {
-      weatherFormat = (listIndex == 0) ? 0 : 1;
+      if(listIndex != weatherFormat) {
+        weatherFormat = (listIndex == 0) ? 0 : 1;
+        saveChanges = true;
+      }     
       vibrate();
       showList(listItems, itemCount, listIndex, true, true);
     }
@@ -853,14 +888,19 @@ void WatchyBase::twelveModeApp() {
   while (1) {
 
     if (digitalRead(BACK_BTN_PIN) == 1) {
-      saveVars();
       vibrate();
+      if(saveChanges)
+        saveVars();
+      saveChanges = false;
       break;
     }
 
-    if (digitalRead(MENU_BTN_PIN) == 1) {
-      twelveMode = (listIndex == 0) ? 0 : 1;
+    if (digitalRead(MENU_BTN_PIN) == 1) {     
       vibrate();
+      if(listIndex != twelveMode) {
+        twelveMode = (listIndex == 0) ? 0 : 1;
+        saveChanges = true;
+      }
       showList(listItems, itemCount, listIndex, true, true);
     }
 
@@ -902,18 +942,19 @@ void WatchyBase::sleepModeApp() {
 
     if (digitalRead(BACK_BTN_PIN) == 1) {
       vibrate();
-      saveVars();
-      if (debugger) {
-        Serial.print("disableSleepMode: ");
-        Serial.println((disableSleepMode) ? "True" : "False");
-      }
+      if(saveChanges)
+        saveVars();
+      saveChanges = false;
       break;
     }
 
     if (digitalRead(MENU_BTN_PIN) == 1) {
       vibrate();
       if (listIndex < 2) {
+        if(listIndex != disableSleepMode) {
         disableSleepMode = listIndex;
+        saveChanges = true;
+      }
         showList(listItems, itemCount, listIndex, true, true);
       } else if (listIndex == 2) {
         break;
@@ -1073,14 +1114,19 @@ void WatchyBase::dateModeApp() {
   while (1) {
 
     if (digitalRead(BACK_BTN_PIN) == 1) {
-      saveVars();
       vibrate();
+      if(saveChanges)
+        saveVars();
+      saveChanges = false;
       break;
     }
 
-    if (digitalRead(MENU_BTN_PIN) == 1) {
-      dateMode = (listIndex == 0) ? 0 : 1;
+    if (digitalRead(MENU_BTN_PIN) == 1) {    
       vibrate();
+      if(listIndex != dateMode) {
+        dateMode = (listIndex == 0) ? 0 : 1;
+        saveChanges = true;
+      }
       showList(listItems, itemCount, listIndex, true, true);
     }
 
@@ -1124,8 +1170,10 @@ void WatchyBase::ntpApp() {
   while (1) {
 
     if (digitalRead(BACK_BTN_PIN) == 1) {
-      saveVars();
       vibrate();
+      if(saveChanges)
+        saveVars();
+      saveChanges = false;
       break;
     }
 
@@ -1137,10 +1185,13 @@ void WatchyBase::ntpApp() {
     }
 
     if (digitalRead(UP_BTN_PIN) == 1) {
-      listIndex == 0 ? (listIndex = (itemCount - 1)) : listIndex--;
-      syncNTP = (listIndex == 0) ? true : false;
+      listIndex == 0 ? (listIndex = (itemCount - 1)) : listIndex--;   
       synced = false;
       vibrate();
+      if(listIndex != syncNTP) {
+        syncNTP = (listIndex == 0) ? true : false;
+        saveChanges = true;
+      }
       showList(listItems, itemCount, listIndex, false, true);
     }
 
@@ -1301,15 +1352,19 @@ void WatchyBase::wifiModeApp() {
 
   while (1) {
 
-
-
     if (digitalRead(BACK_BTN_PIN) == 1) {
       vibrate();
+      if(saveChanges)
+        saveVars();
+      saveChanges = false;
       break;
     }
 
     if (digitalRead(MENU_BTN_PIN) == 1) {
-      wifiMode = (listIndex == 0) ? 0 : 1;
+      if(listIndex != wifiMode) {
+        wifiMode = (listIndex == 0) ? 0 : 1;
+        saveChanges = true;
+      }  
       selectCounter++;
       vibrate();
       if (selectCounter < 2)

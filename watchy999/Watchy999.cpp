@@ -10,6 +10,7 @@
 #include "G5600.h"
 #include "pebbleText.h"
 #include "doom999.h"
+#include "qlocky.h"
 
 RTC_DATA_ATTR bool charging = false;
 RTC_DATA_ATTR bool chargeSync = false;
@@ -37,7 +38,7 @@ const char* TEENS_SPLIT[][2] = { {"", ""}, {"eleven", ""}, {"twelve", ""}, {"thi
 };
 
 //Watch Face Settings - Boolean 0 False, 1 True - { Show Weather, Show Border, Show Steps }
-uint8_t dktime[3] { 0, 0, 0 };
+uint8_t dktime[3] { 0, 0, 1 };
 uint8_t pxl999[3] { 1, 0, 0 };
 uint8_t slides[3] { 0, 1, 1 };
 uint8_t synth[3] { 1, 1, 0 };
@@ -46,8 +47,9 @@ uint8_t lowbatt[3] { 0, 1, 0};
 uint8_t watchytris[3] { 1, 1, 1 };
 uint8_t G5600[3] { 0, 1, 0 };
 uint8_t pebbletext[3] { 0, 1, 0 };
-uint8_t doom[3] { 0, 0, 0 };
-uint8_t* watchFaces[] = { dktime, pxl999, slides, synth, crushem, lowbatt, watchytris, G5600, pebbletext, doom };
+uint8_t doom[3] { 0, 0, 1 };
+uint8_t qlocky[3] { 0, 1, 0 };
+uint8_t* watchFaces[] = { dktime, pxl999, slides, synth, crushem, lowbatt, watchytris, G5600, pebbletext, doom, qlocky };
 
 void Watchy999::watchFaceSettings() {
   showWeather = watchFaces[watchFace][0];
@@ -91,6 +93,9 @@ void Watchy999::displayWatchFace() {
         break;
       case 9:
         drawDoomWatchFace();
+        break;
+      case 10:
+        drawQlockyWatchFace();
         break;
       default:
         drawDkWatchFace();
@@ -324,7 +329,12 @@ void Watchy999::gotoSleep() {
   display.display(false);
   interruptAlarm(false);
   display.hibernate();
-  esp_sleep_enable_ext1_wakeup(EXT_INT_MASK, ESP_EXT1_WAKEUP_ANY_HIGH); //enable deep sleep wake on button press
+  RTC.clearAlarm(); //resets the alarm flag in the RTC
+  // Set pins 0-39 to input to avoid power leaking out
+  for (int i = 0; i < 40; i++) {
+    pinMode(i, INPUT);
+  }
+  esp_sleep_enable_ext1_wakeup(BTN_PIN_MASK, ESP_EXT1_WAKEUP_ANY_HIGH); //enable deep sleep wake on button press
   esp_deep_sleep_start();
 }
 void Watchy999::drawWatchFace() {
