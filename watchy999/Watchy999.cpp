@@ -363,7 +363,23 @@ void Watchy999::drawWatchFace() {
   }
 
   if (syncNTP == 1 && currentTime.Hour == SYNC_HOUR && currentTime.Minute == SYNC_MINUTE && !lowBattFace || runOnce) { //Sync NTP at specified time (3am default)
+    
+    if (runOnce) {
+      int i = 0;
+        while(initialSync == false) {
+          if(i == 0)
+            syncNtpTime();
+            i++;
+          if(debugger)
+            Serial.println("waiting for sync...");
+          if(initialSync == true)
+            break;
+        }
+        RTC.read(currentTime);
+        timeData latestTime = getTimeDate();
+    } else {
     syncNtpTime();
+    }
   }
 
   displayWatchFace();

@@ -39,6 +39,7 @@ extern RTC_DATA_ATTR uint8_t SLEEP_HOUR;
 extern RTC_DATA_ATTR uint8_t SLEEP_MINUTE;
 extern RTC_DATA_ATTR uint8_t SYNC_HOUR;
 extern RTC_DATA_ATTR uint8_t SYNC_MINUTE;
+extern RTC_DATA_ATTR bool initialSync;
 
 // Btn definitions
 //#define IS_DOUBLE_TAP       (wakeupBit & ACC_INT_MASK && guiState == WATCHFACE_STATE)

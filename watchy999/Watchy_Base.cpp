@@ -39,6 +39,7 @@ RTC_DATA_ATTR uint8_t SLEEP_MINUTE = 0;
 RTC_DATA_ATTR uint8_t SYNC_HOUR = 23;
 RTC_DATA_ATTR uint8_t SYNC_MINUTE = 59;
 RTC_DATA_ATTR bool displayFullInit_ = true;
+RTC_DATA_ATTR bool initialSync = false;
 
 int i, n;
 bool res;
@@ -275,9 +276,9 @@ void WatchyBase::handleButtonPress() {
   }
 
   if (IS_BTN_LEFT_UP) {
-    //    twelveMode = (twelveMode == 0) ? true : false;
-    RTC.read(currentTime);
     vibrate();
+    RTC.clearAlarm();
+    RTC.read(currentTime);
     showWatchFace(true);
     return;
   }
@@ -630,10 +631,10 @@ void WatchyBase::watchfaceApp() {
   while (1) {
 
     if (digitalRead(BACK_BTN_PIN) == 1) {
+      vibrate();
       if(saveChanges)
         saveVars();
       saveChanges = false;
-      vibrate();
       break;
     }
 
@@ -951,10 +952,9 @@ void WatchyBase::sleepModeApp() {
     if (digitalRead(MENU_BTN_PIN) == 1) {
       vibrate();
       if (listIndex < 2) {
-        if(listIndex != disableSleepMode) {
+        if(listIndex != disableSleepMode)
+          saveChanges = true;
         disableSleepMode = listIndex;
-        saveChanges = true;
-      }
         showList(listItems, itemCount, listIndex, true, true);
       } else if (listIndex == 2) {
         break;
@@ -1086,8 +1086,7 @@ void WatchyBase::sleepModeApp() {
 
   if (listIndex == 2) {
     sleep_mode = true;
-    saveVars();
-    
+//    saveVars();   
     interruptAlarm(false); 
     
     RTC.read(currentTime);
@@ -1188,10 +1187,6 @@ void WatchyBase::ntpApp() {
       listIndex == 0 ? (listIndex = (itemCount - 1)) : listIndex--;   
       synced = false;
       vibrate();
-      if(listIndex != syncNTP) {
-        syncNTP = (listIndex == 0) ? true : false;
-        saveChanges = true;
-      }
       showList(listItems, itemCount, listIndex, false, true);
     }
 
@@ -1201,8 +1196,11 @@ void WatchyBase::ntpApp() {
         Serial.println("ntp listIndex: " + String(listIndex));
 
       if (listIndex < 3) {
-        syncNTP = listIndex;
+//        syncNTP = listIndex;
         //        syncIndex = listIndex;
+        if(listIndex != syncNTP)
+          saveChanges = true;
+        syncNTP = listIndex;
         showList(listItems, itemCount, listIndex, true, true);
 
       } else if (listIndex == 3) {
@@ -1320,7 +1318,7 @@ void WatchyBase::ntpApp() {
 
       }
 
-      if (listIndex != 2) {
+      if (listIndex == 4) {
         listIndex = 0;
         showList(listItems, itemCount, listIndex, false, true);
       }
@@ -1595,8 +1593,10 @@ void WatchyBase::syncNtpTime() {
   display.display(true);
   if (manualSync)
     delay(3000);
-    
+  if(debugger)
+    Serial.println("NTP Sync Done");
   manualSync = false;
+  initialSync = true;
 }
 
 void WatchyBase::disableWiFi() {
