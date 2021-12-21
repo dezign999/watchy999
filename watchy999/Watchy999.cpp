@@ -370,9 +370,10 @@ void Watchy999::drawWatchFace() {
           if(i == 0)
             syncNtpTime();
             i++;
+            delay(500);
           if(debugger)
             Serial.println("waiting for sync...");
-          if(initialSync == true)
+          if(initialSync == true || i == 6)
             break;
         }
         RTC.read(currentTime);
