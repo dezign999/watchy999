@@ -164,12 +164,15 @@ void Watchy999 :: setMinute(int8_t minute) {
 }
 
 void Watchy999::drawQlockyWatchFace() {
+  #ifdef ENABLEBORDERS
+    display.epd2.setDarkBorder(darkMode);
+  #endif
   display.fillScreen((darkMode) ? GxEPD_BLACK : GxEPD_WHITE);
   display.setTextColor((darkMode) ? GxEPD_WHITE : GxEPD_BLACK);
   display.setTextWrap(false);
   if (watchAction)
-    setMinute(currentTime.Minute);
-  timeSayer.setWords(currentTime.Hour, currentTime.Minute);
+    setMinute(watchyTime.Minute);
+  timeSayer.setWords(watchyTime.Hour, watchyTime.Minute);
   nextWord();
   display.setFont(&Jost_Light10pt7b);
   //  display.setTextSize(1);
@@ -198,9 +201,6 @@ void Watchy999::drawQlockyWatchFace() {
       display.setCursor(startCursor, y);
       display.print(letter);
     }
-      #ifdef ENABLEBORDERS
-    display.epd2.setDarkBorder(darkMode);
-  #endif
   }
 };
 

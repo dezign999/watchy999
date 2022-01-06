@@ -21,7 +21,7 @@ RTC_DATA_ATTR String stepCount;
 char rNum1, rNum2, rNum3, rNum4, rNum5, rNum6, rNum7, rNum8;
 
 void Watchy999::getSlidesRand() {
-  srand(currentTime.Minute * currentTime.Second * currentTime.Wday); //seeds rand() with the current minute causing watchy to display a new random animation once per minute
+  srand(watchyTime.Minute * watchyTime.Second * watchyTime.Wday); //seeds rand() with the current minute causing watchy to display a new random animation once per minute
   String rNumber = String(random(10000000, 99999999));
   rNum1 = rNumber.charAt(0);
   rNum2 = rNumber.charAt(1);
@@ -35,9 +35,6 @@ void Watchy999::getSlidesRand() {
 
 void Watchy999::getSlidesSteps() {
 
-  if (debugger)
-    stepCount = 10667;
-  else
     stepCount = sensor.getCounter();
 
   if (stepCount.length() == 5) {

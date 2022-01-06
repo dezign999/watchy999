@@ -6,6 +6,10 @@ const unsigned char *ce1 [8] = {ce10, ce11, ce12, ce13, ce14, ce15, ce16, ce17};
 const unsigned char *ce2 [8] = {ce20, ce21, ce22, ce23, ce24, ce25, ce26, ce27};
 
 void Watchy999::drawCeWatchFace() {
+    if(switchFace)
+#ifdef ENABLEBORDERS
+    display.epd2.setDarkBorder(false);
+#endif
 
   display.setFont(&SM_FONT);
   display.setTextColor(GxEPD_WHITE);
@@ -35,7 +39,7 @@ void Watchy999::drawCeWatchFace() {
   int step3 = (String(stepNumber).length() == 5) ? String(stepNumber).charAt(1) - '0' : (String(stepNumber).length() == 4) ? String(stepNumber).charAt(0) - '0' : 0;
   int step4 = (String(stepNumber).length() == 5) ? String(stepNumber).charAt(0) - '0' : 0;
 
-  if (darkMode) {
+  if (dateToggle) {
     drawLecoNum(step4, 9, 162, true);
     drawLecoNum(step3, 36, 162, true);
     drawLecoNum(step2, 63, 162, true);
@@ -78,7 +82,7 @@ void Watchy999::drawCeWatchFace() {
   }
 
 
-  display.setCursor(145, (darkMode) ? 155 : 167);
+  display.setCursor(145, (dateToggle) ? 155 : 167);
   if (String(stepGoal).length() == 5) {
     display.print(String(stepGoal));
   } else if (String(stepGoal).length() == 4) {

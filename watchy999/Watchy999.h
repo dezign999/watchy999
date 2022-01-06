@@ -50,6 +50,7 @@ public:
 class Watchy999 : public WatchyBase {
   public:
     Watchy999();
+//    void handleButtonPress();
     //Slides999
     void drawSlidesWatchFace();
     void drawSlidesTime();
@@ -83,11 +84,11 @@ class Watchy999 : public WatchyBase {
     //Slide Time
     void drawPebbleTextFace();
     //Qlocky
-//    Qlock();
       void drawQlockyWatchFace();
       void setMinute(int8_t minute);
     //Universal
     timeData getTimeDate();
+    void dznIntro();
     void watchFaceSettings();
     void displayWatchFace();
     void drawWatchFace();
@@ -98,9 +99,6 @@ class Watchy999 : public WatchyBase {
     void centerJustify(const String txt, uint16_t xPos, uint16_t yPos);
     void drawLecoNum(int pDigit, int pX, int pY, bool colorChange);
     void drawPxlNum(int pDigit, int pX, int pY, bool colorChange);
-//  private:
-    // uint8_t row;
-    // uint8_t column;
     int16_t x1;
     int16_t y1;
     uint16_t w;

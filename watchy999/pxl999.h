@@ -28,10 +28,10 @@ void Watchy999::drawPxlWatchFace() {
   //  display.print(latestTime.minStr);
 
   //Date
-  String dayName = dayStr(currentTime.Wday);
-  String monthName = monthStr(currentTime.Month);
-  String dateStr = String(currentTime.Day);
-  dateStr = currentTime.Day < 10 ? "0" + dateStr : dateStr;
+  String dayName = dayStr(watchyTime.Wday - 1);
+  String monthName = monthStr(watchyTime.Month);
+  String dateStr = String(watchyTime.Day);
+  dateStr = watchyTime.Day < 10 ? "0" + dateStr : dateStr;
 
   display.fillRect(11, 153, 178, 38, GxEPD_BLACK); //Redraw Helper
 

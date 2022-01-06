@@ -25,7 +25,7 @@ RTC_DATA_ATTR int oldSteps = 0;
 RTC_DATA_ATTR int updateHour;
 RTC_DATA_ATTR int lowBattHour;
 RTC_DATA_ATTR int lowBattMin;
-RTC_DATA_ATTR int sensorDayStamp;
+int syncCount = 0;
 
 RTC_DATA_ATTR timeData latestTime;
 RTC_DATA_ATTR bool lowBattFace = false;
@@ -37,24 +37,26 @@ const char* TEENS_SPLIT[][2] = { {"", ""}, {"eleven", ""}, {"twelve", ""}, {"thi
   {"sixteen", ""}, {"seven", "teen"}, {"eight", "teen"}, {"nine", "teen"}
 };
 
-//Watch Face Settings - Boolean 0 False, 1 True - { Show Weather, Show Border, Show Steps }
-uint8_t dktime[3] { 0, 0, 1 };
-uint8_t pxl999[3] { 1, 0, 0 };
-uint8_t slides[3] { 0, 1, 1 };
-uint8_t synth[3] { 1, 1, 0 };
-uint8_t crushem[3] { 1, 0, 1 };
-uint8_t lowbatt[3] { 0, 1, 0};
-uint8_t watchytris[3] { 1, 1, 1 };
-uint8_t G5600[3] { 0, 1, 0 };
-uint8_t pebbletext[3] { 0, 1, 0 };
-uint8_t doom[3] { 0, 0, 1 };
-uint8_t qlocky[3] { 0, 1, 0 };
+//Watch Face Settings - Boolean 0 False, 1 True - { Show Weather, Show Border, Toggle Border, Show Steps, hasDarkMode }
+uint8_t dktime[5] { 0, 1, 0, 1, 0 };
+uint8_t pxl999[5] { 1, 1, 0, 0, 0 };
+uint8_t slides[5] { 0, 1, 1, 1, 1 };
+uint8_t synth[5] { 1, 1, 1, 0, 1 };
+uint8_t crushem[5] { 1, 0, 0, 1, 0 };
+uint8_t lowbatt[5] { 0, 1, 1, 0, 1 };
+uint8_t watchytris[5] { 1, 1, 0, 1, 0 };
+uint8_t G5600[5] { 0, 1, 1, 0, 1 };
+uint8_t pebbletext[5] { 0, 1, 1, 0, 1 };
+uint8_t doom[5] { 0, 0, 0, 1, 0 };
+uint8_t qlocky[5] { 0, 1, 1, 0, 1 };
 uint8_t* watchFaces[] = { dktime, pxl999, slides, synth, crushem, lowbatt, watchytris, G5600, pebbletext, doom, qlocky };
 
 void Watchy999::watchFaceSettings() {
   showWeather = watchFaces[watchFace][0];
   showBorder = watchFaces[watchFace][1];
-  showSteps = watchFaces[watchFace][2];
+  toggleBorder = watchFaces[watchFace][2];
+  showSteps = watchFaces[watchFace][3];
+  hasDarkMode = watchFaces[watchFace][4];
 }
 
 void Watchy999::displayWatchFace() {
@@ -156,7 +158,7 @@ void Watchy999::centerJustify(const String txt, uint16_t xPos, uint16_t yPos) {
 
 timeData Watchy999::getTimeDate() {
 
-  int Hour = currentTime.Hour;
+  int Hour = watchyTime.Hour;
 
   if (twelveMode == 0) {
     if (Hour > 12) {
@@ -169,15 +171,15 @@ timeData Watchy999::getTimeDate() {
   char hour1 = String(Hour / 10).charAt(0);
   char hour2 = String(Hour % 10).charAt(0);
 
-  char min1 = String(currentTime.Minute / 10).charAt(0);
-  char min2 = String(currentTime.Minute % 10).charAt(0);
+  char min1 = String(watchyTime.Minute / 10).charAt(0);
+  char min2 = String(watchyTime.Minute % 10).charAt(0);
 
-  String hourStr = String(currentTime.Hour);
-  String minStr = String(currentTime.Minute);
+  String hourStr = String(watchyTime.Hour);
+  String minStr = String(watchyTime.Minute);
 
-  hourStr = (!twelveMode && currentTime.Hour > 12 &&  currentTime.Hour <= 21) ? "0" + String(currentTime.Hour - 12) : (!twelveMode && currentTime.Hour > 12) ? String(currentTime.Hour - 12) :
-            (!twelveMode && currentTime.Hour == 0) ? "12" : currentTime.Hour < 10 ? "0" + hourStr : hourStr;
-  minStr = currentTime.Minute < 10 ? "0" + minStr : minStr;
+  hourStr = (!twelveMode && watchyTime.Hour > 12 &&  watchyTime.Hour <= 21) ? "0" + String(watchyTime.Hour - 12) : (!twelveMode && watchyTime.Hour > 12) ? String(watchyTime.Hour - 12) :
+            (!twelveMode && watchyTime.Hour == 0) ? "12" : watchyTime.Hour < 10 ? "0" + hourStr : hourStr;
+  minStr = watchyTime.Minute < 10 ? "0" + minStr : minStr;
 
   String monthStr;
   String dateStr;
@@ -188,22 +190,24 @@ timeData Watchy999::getTimeDate() {
   char date1;
   char date2;
 
-  monthStr = currentTime.Month < 10 ? "0" + String(currentTime.Month) : String(currentTime.Month);
-  dateStr = currentTime.Day < 10 ? "0" + String(currentTime.Day) : String(currentTime.Day);
-  longYearStr = String(currentTime.Year + 1970);
-  shortYearStr = String(currentTime.Year + 1970).charAt(3) + String(currentTime.Year + 1970).charAt(4);
-  month1 = (currentTime.Month / 10 != 0) ? String(currentTime.Month / 10).charAt(0) : '0';
-  month2 = String(currentTime.Month % 10).charAt(0);
-  date1 = (currentTime.Day / 10 != 0) ? String(currentTime.Day / 10).charAt(0) : '0';
-  date2 = String(currentTime.Day % 10).charAt(0);
+  monthStr = watchyTime.Month < 10 ? "0" + String(watchyTime.Month) : String(watchyTime.Month);
+  dateStr = watchyTime.Day < 10 ? "0" + String(watchyTime.Day) : String(watchyTime.Day);
+  longYearStr = String(2000 + tmYearToY2k(watchyTime.Year));
+  //  longYearStr = String(watchyTime.Year);
+  shortYearStr = String(tmYearToY2k(watchyTime.Year));
+  //  shortYearStr = String(watchyTime.Year).charAt(3) + String(watchyTime.Year).charAt(4);
+  month1 = (watchyTime.Month / 10 != 0) ? String(watchyTime.Month / 10).charAt(0) : '0';
+  month2 = String(watchyTime.Month % 10).charAt(0);
+  date1 = (watchyTime.Day / 10 != 0) ? String(watchyTime.Day / 10).charAt(0) : '0';
+  date2 = String(watchyTime.Day % 10).charAt(0);
 
   const char* dayNames[7] = { "SUN" , "MON" , "TUE" , "WED" , "THU" , "FRI" , "SAT" };
   const char* monthNames[12] = { "JAN" , "FEB" , "MAR" , "APR" , "MAY" , "JUN" , "JUL" , "AUG" , "SEP" , "OCT" , "NOV" , "DEC" };
 
-  const char* dayAbbrev = dayNames[currentTime.Wday - 1];
-  const char * monthAbbrev = monthNames[currentTime.Month - 1];
+  const char* dayAbbrev = dayNames[watchyTime.Wday - 1];
+  const char * monthAbbrev = monthNames[watchyTime.Month - 1];
 
-  isNight = (currentTime.Hour >= 18 || currentTime.Hour <= 5) ? true : false;
+  isNight = (watchyTime.Hour >= 18 || watchyTime.Hour <= 5) ? true : false;
 
   latestTime.hour1 = hour1;
   latestTime.hour2 = hour2;
@@ -230,7 +234,7 @@ void Watchy999::drawWeather() {
     weatherData latestWeather = weather999();
     rawTemperature = latestWeather.temperature;
     weatherConditionCode = latestWeather.weatherConditionCode;
-    updateHour = currentTime.Hour;
+    updateHour = watchyTime.Hour;
   }
 
   if (weatherMode == 2) {
@@ -270,6 +274,21 @@ void Watchy999::drawWeather() {
   }
 }
 
+//void Watchy999::handleButtonPress(){
+//    WatchyBase::handleButtonPress();
+//
+//    uint64_t wakeupBit = esp_sleep_get_ext1_wakeup_status();
+//    if(IS_DOUBLE_TAP){
+//        RTC.clearAlarm();
+//        RTC.read(watchyTime);
+//        darkMode = true;
+//        showWatchFace(true);
+//        if(debugger)
+//          Serial.println("Double Tapped");
+//        return;
+//    }
+//}
+
 void Watchy999::checkBattery() {
   //Sync NTP when charging, this is very very amateur, but it works and will only sync once per usb connection
   //  float battery =  analogReadMilliVolts(ADC_PIN) / 1000.0f * 2.0f;
@@ -285,12 +304,20 @@ void Watchy999::checkBattery() {
     lowBattFace = false;
   }
 
-  if (syncNTP == 0 && !runOnce) {
+  if (ntpMode == 0 && !runOnce) {
     if (!chargeSync && charging || battery >= maxVoltage && !chargeSync) {
       if (debugger)
         Serial.println("Charging NTP Sync");
       chargeSync = true;
-      syncNtpTime();
+
+      if (syncNtpTime()) {
+        if (debugger)
+          Serial.println("Charge Sync Success");
+      } else {
+        if (debugger)
+          Serial.println("Charge Sync Failed");
+      }
+
     } else if (oldVoltage > (battery + .02) & chargeSync && !charging) {
       chargeSync = false;
       oldVoltage = 0;
@@ -301,11 +328,12 @@ void Watchy999::checkBattery() {
 
 void Watchy999::checkSteps() {
 
-  if (currentTime.Day != sensorDayStamp) {
+  //  if (watchyTime.Day != sensorDayStamp) {
+  if (watchyTime.Hour == 0 && watchyTime.Minute == 0) {
     sensor.resetStepCounter();
     stepGoal = 500;
     oldSteps = 0;
-    sensorDayStamp = currentTime.Day;
+    //    sensorDayStamp = watchyTime.Day;
   }
 
   int stepNumber = sensor.getCounter();
@@ -329,31 +357,62 @@ void Watchy999::gotoSleep() {
   display.display(false);
   interruptAlarm(false);
   display.hibernate();
-  RTC.clearAlarm(); //resets the alarm flag in the RTC
   // Set pins 0-39 to input to avoid power leaking out
   for (int i = 0; i < 40; i++) {
     pinMode(i, INPUT);
   }
   esp_sleep_enable_ext1_wakeup(BTN_PIN_MASK, ESP_EXT1_WAKEUP_ANY_HIGH); //enable deep sleep wake on button press
+  RTC.clearAlarm(); //resets the alarm flag in the RTC
   esp_deep_sleep_start();
 }
+void Watchy999::dznIntro() {
+  display.fillScreen(GxEPD_BLACK);
+  drawLecoNum(9, 61, 80, GxEPD_WHITE);
+  drawLecoNum(9, 89, 80, GxEPD_WHITE);
+  drawLecoNum(9, 117, 80, GxEPD_WHITE);
+  display.setFont(&SMALL_TEXT);
+  centerJustify("SYNCING", 100, 125);
+
+#ifdef ENABLEBORDERS
+  display.epd2.setDarkBorder(true);
+#endif
+  display.display(false);
+}
+
 void Watchy999::drawWatchFace() {
 
+  if (runOnce || switchFace)
+    dznIntro();
+
   watchFaceSettings();
+
+  if (ntpMode == 1 && watchyTime.Hour == SYNC_HOUR && watchyTime.Minute == SYNC_MINUTE && !lowBattFace || runOnce) { //Sync NTP at specified time (3am default)
+    if (syncNtpTime()) {
+      if (debugger)
+        Serial.println("AutoNTP Sync Success");
+    } else {
+      if (debugger)
+        Serial.println("AutoNTP Sync Failed");
+    }
+  }
+
+  RTC.read(watchyTime);
   timeData latestTime = getTimeDate();
+
+
   checkBattery();
 
   if (showSteps)
     checkSteps();
 
-  if (animMode == 0 && currentTime.Second == 0 || animMode == 1 && currentTime.Minute % 30 == 0 || animMode == 2 && currentTime.Minute == 0) {
+  if (animMode == 0 && watchyTime.Second == 0 || animMode == 1 && watchyTime.Minute % 30 == 0 || animMode == 2 && watchyTime.Minute == 0) {
     if (watchFace != 3 && watchFace != 7 && watchFace != 8 && watchFace != 9 && !sleep_mode)
       watchAction = true;
   }
 
   if (showWeather && !lowBattFace && !sleep_mode) {
 
-    if (weatherMode == 0 && currentTime.Minute % 30 == 0 && weatherMode != 2 || weatherMode == 1 && currentTime.Minute == 0 && weatherMode != 2 || runOnce || switchFace && updateHour != currentTime.Hour) {
+    if (weatherMode == 0 && watchyTime.Minute % 30 == 0 && weatherMode != 2 || weatherMode == 1 && watchyTime.Minute == 0 && weatherMode != 2 || runOnce || switchFace && updateHour != watchyTime.Hour) {
       showCached = false;
     } else {
       showCached = true;
@@ -362,43 +421,30 @@ void Watchy999::drawWatchFace() {
     drawWeather();
   }
 
-  if (syncNTP == 1 && currentTime.Hour == SYNC_HOUR && currentTime.Minute == SYNC_MINUTE && !lowBattFace || runOnce) { //Sync NTP at specified time (3am default)
-    
-    if (runOnce) {
-      int i = 0;
-        while(initialSync == false) {
-          if(i == 0)
-            syncNtpTime();
-            i++;
-            delay(500);
-          if(debugger)
-            Serial.println("waiting for sync...");
-          if(initialSync == true || i == 6)
-            break;
-        }
-        RTC.read(currentTime);
-        timeData latestTime = getTimeDate();
+
+
+#ifdef ENABLEBORDERS
+  if (showBorder) {
+    if (toggleBorder) {
+      display.epd2.setDarkBorder((darkMode) ? true : false);
     } else {
-    syncNtpTime();
+      display.epd2.setDarkBorder(true);
     }
+  } else {
+    display.epd2.setDarkBorder(false);
   }
+#endif
 
   displayWatchFace();
-
-  if (runOnce)
-    runOnce = false;
+  display.display(true);
 
   if (switchFace)
     switchFace = false;
 
+  if (runOnce)
+    runOnce = false;
+
   if (WiFi.status() == WL_CONNECTED)
     disableWiFi();
-
-#ifdef ENABLEBORDERS
-  if (showBorder || lowBattFace)
-    display.epd2.setDarkBorder(darkMode);
-#endif
-
-  display.display(true);
 
 }

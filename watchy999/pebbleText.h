@@ -16,62 +16,62 @@ void Watchy999::drawPebbleTextFace() {
   display.setFont(&bithamHour);
   display.setCursor(xPos, yPosOne);
   if (twelveMode) {
-    if (currentTime.Hour == 0) {
+    if (watchyTime.Hour == 0) {
       display.setCursor(xPos, yPosOne);
       display.print("zero");
       display.setCursor(xPos, yPosTwo);
       display.print("dark");
-    } else if (10 <= currentTime.Hour && currentTime.Hour < 14) {
-      if (currentTime.Hour >= 10 && currentTime.Hour <= 13) {
+    } else if (10 <= watchyTime.Hour && watchyTime.Hour < 14) {
+      if (watchyTime.Hour >= 10 && watchyTime.Hour <= 13) {
         display.setCursor(xPos, yPosOne);
         display.print("zero");
         display.setCursor(xPos, yPosTwo);
       }
-      display.print(ONES[currentTime.Hour]);
-    } else if (currentTime.Hour > 13 && currentTime.Hour < 20) {
-      if (currentTime.Hour >= 15 && currentTime.Hour <= 16)
+      display.print(ONES[watchyTime.Hour]);
+    } else if (watchyTime.Hour > 13 && watchyTime.Hour < 20) {
+      if (watchyTime.Hour >= 15 && watchyTime.Hour <= 16)
         display.setCursor(xPos, yPosTwo);
-      display.print(TEENS_SPLIT[(currentTime.Hour - 10) % 10][0]);
+      display.print(TEENS_SPLIT[(watchyTime.Hour - 10) % 10][0]);
       display.setCursor(xPos, yPosTwo);
-      display.print(TEENS_SPLIT[(currentTime.Hour - 10) % 10][1]);
-    } else if (currentTime.Hour <= 24) {
-      if (twelveMode && currentTime.Hour / 10 == 0) {
+      display.print(TEENS_SPLIT[(watchyTime.Hour - 10) % 10][1]);
+    } else if (watchyTime.Hour <= 24) {
+      if (twelveMode && watchyTime.Hour / 10 == 0) {
         display.print("zero");
       } else {
-        if (currentTime.Hour == 20)
+        if (watchyTime.Hour == 20)
           display.setCursor(xPos, yPosTwo);
-        display.print(TENS[currentTime.Hour / 10]);
+        display.print(TENS[watchyTime.Hour / 10]);
       }
       display.setCursor(xPos, yPosTwo);
-      display.print(ONES[currentTime.Hour % 10]);
+      display.print(ONES[watchyTime.Hour % 10]);
     }
   } else {
-    display.print(ONES[(currentTime.Hour + 11) % 12 + 1]);
+    display.print(ONES[(watchyTime.Hour + 11) % 12 + 1]);
   }
 
   // minutes
   display.setFont(&bithamMin);
   display.setCursor(xPos, yPosThree);
-  if (currentTime.Minute == 0) {
+  if (watchyTime.Minute == 0) {
     if (twelveMode) {
       display.print("hundred");
     } else {
-      display.print((currentTime.Hour == 0) ? "midnight" : (currentTime.Hour == 12) ? "noon" : "o'clock");
+      display.print((watchyTime.Hour == 0) ? "midnight" : (watchyTime.Hour == 12) ? "noon" : "o'clock");
     }
-  } else if (10 <= currentTime.Minute && currentTime.Minute < 14) {
-    display.print(ONES[currentTime.Minute]);
-  } else if (currentTime.Minute > 13 && currentTime.Minute < 20) {
-    display.print(TEENS_SPLIT[(currentTime.Minute - 10) % 10][0]);
+  } else if (10 <= watchyTime.Minute && watchyTime.Minute < 14) {
+    display.print(ONES[watchyTime.Minute]);
+  } else if (watchyTime.Minute > 13 && watchyTime.Minute < 20) {
+    display.print(TEENS_SPLIT[(watchyTime.Minute - 10) % 10][0]);
     display.setCursor(xPos, yPosFour);
-    display.print(TEENS_SPLIT[(currentTime.Minute - 10) % 10][1]);
-  } else if (currentTime.Minute <= 59) {
-//    if (twelveMode && currentTime.Minute / 10 == 0) {
+    display.print(TEENS_SPLIT[(watchyTime.Minute - 10) % 10][1]);
+  } else if (watchyTime.Minute <= 59) {
+//    if (twelveMode && watchyTime.Minute / 10 == 0) {
 //      display.print("zero");
 //    } else {
-      display.print(TENS[currentTime.Minute / 10]);
+      display.print(TENS[watchyTime.Minute / 10]);
 //    }
     display.setCursor(xPos, yPosFour);
-    display.print(ONES[currentTime.Minute % 10]);
+    display.print(ONES[watchyTime.Minute % 10]);
   }
 
 }

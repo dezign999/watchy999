@@ -26,10 +26,10 @@ void Watchy999::drawWatchytrisWatchFace() {
   display.drawBitmap(73, 106, tris_nums[(latestTime.min2 - '0')], 39, 78, GxEPD_BLACK); //second digit
 
   //Day
-  display.drawBitmap(156, 25, trisDayNames[(currentTime.Wday - 1)], 25, 6, GxEPD_BLACK); //day abbrev name
+  display.drawBitmap(156, 25, trisDayNames[(watchyTime.Wday - 1)], 25, 6, GxEPD_BLACK); //day abbrev name
 
   //Month
-  display.drawBitmap((dateMode) ? 167 : 144, 49, trisMonthNames[(currentTime.Month - 1)], 25, 6, GxEPD_BLACK); //month abbrev name
+  display.drawBitmap((dateMode) ? 167 : 144, 49, trisMonthNames[(watchyTime.Month - 1)], 25, 6, GxEPD_BLACK); //month abbrev name
 
   //Date
   display.drawBitmap((dateMode) ? 144 : 176, 49, trisSmallNums[(latestTime.date1 - '0')], 7, 6, GxEPD_BLACK); //date first digit

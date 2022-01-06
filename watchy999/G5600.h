@@ -44,7 +44,7 @@ void Watchy999::drawG5600WatchFace() {
   }
 
   //DayName
-  display.drawBitmap(60, 45, gDateNames[(currentTime.Wday - 1)], 36, 20, (darkMode) ? GxEPD_BLACK : GxEPD_WHITE); //day abbrev name
+  display.drawBitmap(60, 45, gDateNames[(watchyTime.Wday - 1)], 36, 20, (darkMode) ? GxEPD_BLACK : GxEPD_WHITE); //day abbrev name
 
   //Month
   display.drawBitmap((dateMode) ? 151 : 114, 45, dateDigit[latestTime.month1 - '0'], 11, 19, (darkMode) ? GxEPD_BLACK : GxEPD_WHITE); //first digit
