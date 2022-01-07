@@ -6,9 +6,8 @@ const unsigned char *doom_gun[4] = {doomgun1, doomgun2, doomgun2, doomgun0};
 #define DOOM_FONT DooM16pt7b
 
 void Watchy999::drawDoomWatchFace() {
-
-  if(switchFace)
 #ifdef ENABLEBORDERS
+  if(switchFace)
     display.epd2.setDarkBorder(false);
 #endif
 

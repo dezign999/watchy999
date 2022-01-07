@@ -6,8 +6,9 @@ const unsigned char *ce1 [8] = {ce10, ce11, ce12, ce13, ce14, ce15, ce16, ce17};
 const unsigned char *ce2 [8] = {ce20, ce21, ce22, ce23, ce24, ce25, ce26, ce27};
 
 void Watchy999::drawCeWatchFace() {
-    if(switchFace)
+    
 #ifdef ENABLEBORDERS
+  if(switchFace)
     display.epd2.setDarkBorder(false);
 #endif
 
